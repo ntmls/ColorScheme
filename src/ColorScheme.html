@@ -1,0 +1,204 @@
+<html>
+    <head>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="http://code.jquery.com/jquery-2.0.1.js"></script>
+        <script src="http://underscorejs.org/underscore-min.js"></script>
+    </head>
+    <body>
+        <input type="file" id="file" name="file" />
+        <br>
+        <img id="image" src=""  />
+        <script>
+            
+            // --------- Load a file -----------------
+            
+            $('#file').on('change', fileChange);
+            
+            var clusters;
+            
+            function fileChange(e) {
+                try {
+                    var file = e.target.files[0];
+                    var reader = new FileReader();
+                    reader.onload = readFile;
+                    reader.readAsDataURL(file);
+                }
+                catch(ex) {
+                    alert(ex.line);
+                }
+            }
+            
+            function readFile(e) {
+                var pic = new Image();
+                var canvas = document.createElement('canvas');
+                pic.src = e.target.result;
+                var scale = getScale(pic.width, pic.height, 640, 640);
+                canvas.width = pic.width * scale;
+                canvas.height = pic.height * scale;
+                ctx = canvas.getContext('2d');
+                ctx.drawImage(pic, 
+                    0, 0, pic.width, pic.height, 
+                    0, 0, pic.width * scale, pic.height * scale);
+                document.body.appendChild(canvas);
+                var bytes = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale).data;
+                clusters = clusterColors(bytes, 16);
+                renderCircles();
+            }
+            
+            function getScale(sWidth, sHeight, tWidth, tHeight) {
+                var scale = tWidth / sWidth;
+                if (sHeight * scale > tHeight) {
+                    scale = tHeight / sHeight;
+                }
+                return scale;
+            }
+            
+            // --------- clustering -----------------
+            
+            function createClusters(b, n) {
+                var c = b.length / 4
+                var result = [];
+                for (var i = 0; i < n; i=i+1) {
+                    var r = Math.floor(Math.random() * c);
+                    result.push( 
+                        { 
+                            name: i,
+                            red: b[r * 4], 
+                            green: b[r * 4 + 1], 
+                            blue: b[r * 4 + 2],
+                            count: 1,
+                            redSum: 0,
+                            greenSum: 0,
+                            blueSum: 0
+                        });
+                }
+                return result;
+            }
+            
+            function clusterColors(bytes, n) {
+                var clusters = createClusters(bytes, n);
+                var newClusters;
+                for(var i = 0; i < 50; i = i + 1) {
+                    newClusters = iterate(bytes, clusters);
+                    clusters = newClusters;
+                }
+                return newClusters;
+            }
+            
+            function distanceFromClusterSquared(red1, green1, blue1, red2, green2, blue2) {
+                var deltaRed = red2 - red1;
+                var deltaGreen = green2 - green1;
+                var deltaBlue = blue2 - blue1;
+                return deltaRed * deltaRed + deltaGreen  * deltaGreen + deltaBlue * deltaBlue;
+            }
+            
+            function findNearestCluster(red, green, blue, clusters) {
+                return _.min(clusters, function(c) { 
+                    return distanceFromClusterSquared(
+                        c.red, c.green, c.blue, 
+                        red, green, blue); 
+                });
+            }
+            
+            function resetClusters(clusters) {
+                return _.map(clusters, function(c) { return resetCluster(c); });
+            }
+            
+            
+            function resetCluster(cluster) {
+                return {
+                    name: cluster.name,
+                    red: cluster.red,
+                    green: cluster.green,
+                    blue: cluster.blue,
+                    count: 1,
+                    redSum: 0,
+                    greenSum: 0,
+                    blueSum: 0
+                };
+            }
+            
+            function normalizeCluster(cluster) {
+                return {
+                    name: cluster.name,
+                    red: Math.floor(cluster.redSum / cluster.count),
+                    green: Math.floor(cluster.greenSum / cluster.count),
+                    blue: Math.floor(cluster.blueSum / cluster.count),
+                    count: cluster.count,
+                    redSum: 0,
+                    greenSum: 0,
+                    blueSum: 0
+                };
+            }
+            
+            function normalizeClusters(clusters) {
+                return _.map(clusters, function(c) {
+                    return normalizeCluster(c);
+                });
+            }
+            
+            function iterate(bytes, clusters) {
+                var newClusters = resetClusters(clusters);
+                var red, green, blue, c;
+                for (var i = 0; i < bytes.length; i = i + 4) {
+                    red = bytes[i];
+                    green = bytes[i+1];
+                    blue = bytes[i+2];
+                    c = findNearestCluster(red, green, blue, newClusters);
+                    c.redSum = c.redSum + red;
+                    c.greenSum = c.greenSum + green;
+                    c.blueSum = c.blueSum + blue;
+                    c.count = c.count + 1;
+                } 
+                return normalizeClusters(newClusters);
+            }
+            
+            //----------------- visualization -----------------
+            
+            function renderCircles() { 
+            var pack = d3.layout.pack()
+                .size([200, 200]);
+            
+            var data = _.map(clusters, function(d) {
+                return {
+                    name: d.name,
+                    value: d.count,
+                    more: d
+                };
+            });
+            
+            var root = {
+                name: 'root',
+                value: 1,
+                children: data
+            }
+            
+            var nodes = pack(root);
+            
+            var svg = d3.select('body').append('svg')
+                .attr('width', 200)
+                .attr('height', 2000);
+            
+            svg.selectAll('circle')
+                .data(nodes)
+                .enter()
+                .append('circle')
+                .attr('cx', function(d) { return d.x; })
+                .attr('cy', function(d) { return d.y; })
+                .attr('r', function(d) { return d.r; })
+                .style('fill', fillColorRule)
+                .style('stroke', 'black');
+            }
+            
+            function fillColorRule(d) {
+                if (d.depth == 0) {
+                    return 'none';
+                } else {
+                    return 'rgb(' + d.more.red + ',' + d.more.green + ',' + d.more.blue + ')';
+                };
+            }
+            
+        </script>
+
+    </body>
+</html
