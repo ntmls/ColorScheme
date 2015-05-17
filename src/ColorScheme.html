@@ -76,10 +76,20 @@
             }
             
             function clusterColors(bytes, n) {
-                var clusters = createClusters(bytes, n);
-                var newClusters;
+                var clusters = createClusters(bytes, n),
+                    newClusters, isDifferent, distances;
+                
                 for(var i = 0; i < 50; i = i + 1) {
                     newClusters = iterate(bytes, clusters);
+                    distances = _.zip(clusters, newClusters)
+                        .map(function(c) {
+                            return distanceFromClusterSquared(
+                                c[0].red, c[0].green, c[0].blue, 
+                                c[1].red, c[1].green, c[1].blue);
+                        });
+                    if (_.every(distances, function(d) { return d == 0; })) {
+                        break;
+                    }
                     clusters = newClusters;
                 }
                 return newClusters;
@@ -184,6 +194,7 @@
             
             var nodes = pack(root);
             
+            d3.select('body').append('br');
             var svg = d3.select('body').append('svg')
                 .attr('width', 200)
                 .attr('height', 2000);
