@@ -7,7 +7,6 @@
     <body>
         <input type="file" id="file" name="file" />
         <br>
-        <img id="image" src=""  />
         <script>
             
             // --------- Load a file -----------------
@@ -122,7 +121,6 @@
             function resetClusters(clusters) {
                 return _.map(clusters, function(c) { return resetCluster(c); });
             }
-            
             
             function resetCluster(cluster) {
                 return {
