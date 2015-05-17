@@ -93,11 +93,20 @@
             }
             
             function findNearestCluster(red, green, blue, clusters) {
-                return _.min(clusters, function(c) { 
-                    return distanceFromClusterSquared(
+                
+                var min, minDist = 200000, dist, c;
+                
+                for (var i = 0; i < clusters.length; i = i + 1) {
+                    c = clusters[i];
+                    dist = distanceFromClusterSquared(
                         c.red, c.green, c.blue, 
-                        red, green, blue); 
-                });
+                        red, green, blue);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        min = c;
+                    }
+                }
+                return min;
             }
             
             function resetClusters(clusters) {
