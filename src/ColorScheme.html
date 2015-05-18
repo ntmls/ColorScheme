@@ -7,13 +7,22 @@
     <body>
         <input type="file" id="file" name="file" />
         <br>
+        <canvas id="original-image"  width="50" height="50"></canvas>
+        <br>
+        <input type="button" id="go" name="go" value="Go" onClick="clickGo()" />
+        <br>
+        <svg id="clusters-svg" width="200" height="200"></svg>
+        <br>
+        <canvas id="quantized-image"  width="50" height="50"></canvas>
+        
         <script>
             
             // --------- Load a file -----------------
             
             $('#file').on('change', fileChange);
             
-            var clusters;
+            var clusters,
+                originalImageData;
             
             function fileChange(e) {
                 try {
@@ -29,7 +38,7 @@
             
             function readFile(e) {
                 var pic = new Image();
-                var canvas = document.createElement('canvas');
+                var canvas = $('#original-image')[0];
                 pic.src = e.target.result;
                 var scale = getScale(pic.width, pic.height, 640, 640);
                 canvas.width = pic.width * scale;
@@ -38,10 +47,7 @@
                 ctx.drawImage(pic, 
                     0, 0, pic.width, pic.height, 
                     0, 0, pic.width * scale, pic.height * scale);
-                document.body.appendChild(canvas);
-                var bytes = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale).data;
-                clusters = clusterColors(bytes, 16);
-                renderCircles();
+                originalImageData = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale);
             }
             
             function getScale(sWidth, sHeight, tWidth, tHeight) {
@@ -50,6 +56,14 @@
                     scale = tHeight / sHeight;
                 }
                 return scale;
+            }
+            
+            // ---------- execute -----------------
+            
+            function clickGo() {
+                clusters = clusterColors(originalImageData.data, 16);
+                renderCircles();
+                renderQuantized(originalImageData, clusters);
             }
             
             // --------- clustering -----------------
@@ -170,7 +184,7 @@
                 return normalizeClusters(newClusters);
             }
             
-            //----------------- visualization -----------------
+            //----------------- render clusters -----------------
             
             function renderCircles() { 
             var pack = d3.layout.pack()
@@ -193,19 +207,19 @@
             var nodes = pack(root);
             
             d3.select('body').append('br');
-            var svg = d3.select('body').append('svg')
+            var svg = d3.select('body').select('#clusters-svg')
                 .attr('width', 200)
-                .attr('height', 2000);
+                .attr('height', 200);
             
             svg.selectAll('circle')
                 .data(nodes)
                 .enter()
-                .append('circle')
-                .attr('cx', function(d) { return d.x; })
-                .attr('cy', function(d) { return d.y; })
-                .attr('r', function(d) { return d.r; })
-                .style('fill', fillColorRule)
-                .style('stroke', 'black');
+                    .append('circle')
+                    .attr('cx', function(d) { return d.x; })
+                    .attr('cy', function(d) { return d.y; })
+                    .attr('r', function(d) { return d.r; })
+                    .style('fill', fillColorRule)
+                    .style('stroke', 'black');
             }
             
             function fillColorRule(d) {
@@ -214,6 +228,27 @@
                 } else {
                     return 'rgb(' + d.more.red + ',' + d.more.green + ',' + d.more.blue + ')';
                 };
+            }
+        
+            // -------- render quantized image ---------
+            
+            function renderQuantized(originalImageData, clusters) {
+                var original = $('#original-image')[0];
+                var canvas = $('#quantized-image')[0];
+                var bytes = originalImageData.data;
+                var cluster;
+                canvas.width = original.width;
+                canvas.height = original.height;
+                var ctx = canvas.getContext('2d');
+                var imageData = ctx.createImageData(originalImageData.width, originalImageData.height)
+                for (var i = 0; i < bytes.length; i = i + 4) {
+                    c = findNearestCluster(bytes[i], bytes[i+1], bytes[i+2], clusters);
+                    imageData.data[i] = c.red;
+                    imageData.data[i+1] = c.green;
+                    imageData.data[i+2] = c.blue;
+                    imageData.data[i+3] = bytes[i+3];
+                }
+                ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
             }
             
         </script>
