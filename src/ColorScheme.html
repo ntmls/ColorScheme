@@ -8,8 +8,10 @@
         <input type="file" id="file" name="file" />
         <br>
         <canvas id="original-image"  width="50" height="50"></canvas>
-        <br>
-        <input type="button" id="go" name="go" value="Go" onClick="clickGo()" />
+        <p>
+        <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
+        <input type="button" id="go" name="go" value="Go" onClick="execute()" />
+        </p>
         <br>
         <svg id="clusters-svg" width="200" height="200"></svg>
         <br>
@@ -30,8 +32,7 @@
                     var reader = new FileReader();
                     reader.onload = readFile;
                     reader.readAsDataURL(file);
-                }
-                catch(ex) {
+                } catch(ex) {
                     alert(ex.line);
                 }
             }
@@ -60,10 +61,15 @@
             
             // ---------- execute -----------------
             
-            function clickGo() {
-                clusters = clusterColors(originalImageData.data, 16);
-                renderCircles();
-                renderQuantized(originalImageData, clusters);
+            function execute() {
+                try {
+                    var count = document.getElementById('cluster-count').value;
+                    clusters = clusterColors(originalImageData.data, count);
+                    renderCircles();
+                    renderQuantized(originalImageData, clusters);
+                } catch(ex) {
+                    alert(ex.message);
+                }
             }
             
             // --------- clustering -----------------
