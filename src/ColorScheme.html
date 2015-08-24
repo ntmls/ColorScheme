@@ -17,16 +17,16 @@
         <svg id="clusters-svg" width="200" height="200"></svg>
         <br>
         <canvas id="quantized-image"  width="50" height="50"></canvas>
-        
+
         <script>
-            
+
             // --------- Load a file -----------------
-            
+
             $('#file').on('change', fileChange);
-            
+
             var clusters,
                 originalImageData;
-            
+
             function fileChange(e) {
                 try {
                     var file = e.target.files[0];
@@ -37,7 +37,7 @@
                     alert(ex.line);
                 }
             }
-            
+
             function readFile(e) {
                 var pic = new Image();
                 var canvas = $('#original-image')[0];
@@ -46,12 +46,12 @@
                 canvas.width = pic.width * scale;
                 canvas.height = pic.height * scale;
                 ctx = canvas.getContext('2d');
-                ctx.drawImage(pic, 
-                    0, 0, pic.width, pic.height, 
+                ctx.drawImage(pic,
+                    0, 0, pic.width, pic.height,
                     0, 0, pic.width * scale, pic.height * scale);
                 originalImageData = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale);
             }
-            
+
             function getScale(sWidth, sHeight, tWidth, tHeight) {
                 var scale = tWidth / sWidth;
                 if (sHeight * scale > tHeight) {
@@ -59,24 +59,24 @@
                 }
                 return scale;
             }
-            
+
             // ---------- execute -----------------
-            
+
             function execute() {
                 try {
                     var count = document.getElementById('cluster-count').value;
-                    clusters = clusterColors(originalImageData.data, count);
+                    clusters = ColorScheme.clusterColors(originalImageData.data, count);
                     renderCircles();
                     renderQuantized(originalImageData, clusters);
                 } catch(ex) {
                     alert(ex.message);
                 }
             }
-            
-            
+
+
             //----------------- render clusters -----------------
-            
-            function renderCircles() { 
+
+            function renderCircles() {
                 var pack = d3.layout.pack()
                     .size([200, 200]);
 
@@ -110,7 +110,7 @@
                     .style('stroke', 'black');
                 circles.exit().remove();
             }
-            
+
             function fillColorRule(d) {
                 if (d.depth == 0) {
                     return 'none';
@@ -118,9 +118,9 @@
                     return 'rgb(' + d.more.red + ',' + d.more.green + ',' + d.more.blue + ')';
                 };
             }
-        
+
             // -------- render quantized image ---------
-            
+
             function renderQuantized(originalImageData, clusters) {
                 var original = $('#original-image')[0];
                 var canvas = $('#quantized-image')[0];
@@ -131,7 +131,7 @@
                 var ctx = canvas.getContext('2d');
                 var imageData = ctx.createImageData(originalImageData.width, originalImageData.height)
                 for (var i = 0; i < bytes.length; i = i + 4) {
-                    c = findNearestCluster(bytes[i], bytes[i+1], bytes[i+2], clusters);
+                    c = ColorScheme.findNearestCluster(bytes[i], bytes[i+1], bytes[i+2], clusters);
                     imageData.data[i] = c.red;
                     imageData.data[i+1] = c.green;
                     imageData.data[i+2] = c.blue;
@@ -139,7 +139,7 @@
                 }
                 ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
             }
-            
+
         </script>
 
     </body>
