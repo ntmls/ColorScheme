@@ -66,6 +66,7 @@ function findNearestCluster(red, green, blue, clusters) {
 
 function resetClusters(clusters) {
     return _.map(clusters, function (c) { return resetCluster(c); });
+    return _.map(clusters, resetCluster);
 }
 
 function resetCluster(cluster) {
