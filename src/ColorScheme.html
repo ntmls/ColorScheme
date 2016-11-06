@@ -1,3 +1,4 @@
+<!DOCTYPE="html">
 <html>
     <head>
         <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -63,16 +64,11 @@
             // ---------- execute -----------------
 
             function execute() {
-                try {
-                    var count = document.getElementById('cluster-count').value;
-                    clusters = ColorScheme.clusterColors(originalImageData.data, count);
-                    renderCircles();
-                    renderQuantized(originalImageData, clusters);
-                } catch(ex) {
-                    alert(ex.message);
-                }
+                var count = document.getElementById('cluster-count').value;
+                clusters = ColorScheme.clusterColors(originalImageData.data, count);
+                renderCircles();
+                renderQuantized(originalImageData, clusters);
             }
-
 
             //----------------- render clusters -----------------
 
