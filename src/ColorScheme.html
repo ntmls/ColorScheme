@@ -1,34 +1,18 @@
 <!DOCTYPE="html">
 <html>
     <head>
+        <script src="RgbColor.js"></script>
         <script src="http://d3js.org/d3.v3.min.js"></script>
-        <script src="http://code.jquery.com/jquery-2.0.1.js"></script>
         <script src="http://underscorejs.org/underscore-min.js"></script>
         <script src="ColorScheme.js"></script>
-    </head>
-    <body>
-        <input type="file" id="file" name="file" />
-        <br>
-        <canvas id="original-image"  width="50" height="50"></canvas>
-        <p>
-        <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
-        <input type="button" id="go" name="go" value="Go" onClick="execute()" />
-        </p>
-        <br>
-        <svg id="clusters-svg" width="200" height="200"></svg>
-        <br>
-        <canvas id="quantized-image"  width="50" height="50"></canvas>
-
         <script>
 
             // --------- Load a file -----------------
 
-            $('#file').on('change', fileChange);
-
             var clusters,
                 originalImageData;
 
-            function fileChange(e) {
+            function fileopen(e) {
                 try {
                     var file = e.target.files[0];
                     var reader = new FileReader();
@@ -40,17 +24,8 @@
             }
 
             function readFile(e) {
-                var pic = new Image();
-                var canvas = $('#original-image')[0];
+                var pic = document.getElementById('original-image');
                 pic.src = e.target.result;
-                var scale = getScale(pic.width, pic.height, 640, 640);
-                canvas.width = pic.width * scale;
-                canvas.height = pic.height * scale;
-                ctx = canvas.getContext('2d');
-                ctx.drawImage(pic,
-                    0, 0, pic.width, pic.height,
-                    0, 0, pic.width * scale, pic.height * scale);
-                originalImageData = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale);
             }
 
             function getScale(sWidth, sHeight, tWidth, tHeight) {
@@ -62,12 +37,33 @@
             }
 
             // ---------- execute -----------------
+            
+            function setup() {
+                var fileInput = document.getElementById("file");
+                fileInput.onchange = fileopen;
+            }
 
             function execute() {
                 var count = document.getElementById('cluster-count').value;
                 clusters = ColorScheme.clusterColors(originalImageData.data, count);
                 renderCircles();
+                var colors = clusters.map(function(x) { return x.color; });
+                colors = ColorScheme.sortColors(colors);
+                buildColorDivs(colors);
                 renderQuantized(originalImageData, clusters);
+            }
+            
+            function imageLoaded() {
+                var pic = document.getElementById('original-image');
+                var scale = getScale(pic.width, pic.height, 640, 640);
+                var canvas = document.getElementById('scaled-image');
+                canvas.width = pic.width * scale;
+                canvas.height = pic.height * scale;
+                ctx = canvas.getContext('2d');
+                ctx.drawImage(pic,
+                    0, 0, pic.width, pic.height,
+                    0, 0, pic.width * scale, pic.height * scale);
+                originalImageData = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale);
             }
 
             //----------------- render clusters -----------------
@@ -80,7 +76,7 @@
                     return {
                         name: d.name,
                         value: d.count,
-                        more: d
+                        more: d.color
                     };
                 });
 
@@ -114,29 +110,70 @@
                     return 'rgb(' + d.more.red + ',' + d.more.green + ',' + d.more.blue + ')';
                 };
             }
+            
+            function buildColorDivs(colors) {
+                var colorsBand = document.getElementById("colors-div");
+                while (colorsBand.firstChild) {
+                    colorsBand.removeChild(colorsBand.firstChild);
+                }
+                var len = colors.length;
+                var width = Math.floor(100 / len);
+                for (let i=0; i<len; i++) {
+                    var color = colors[i];
+                    var div = document.createElement("div");
+                    colorsBand.appendChild(div);
+                    div.setAttribute('id', "colors-div-" + i);
+                    div.setAttribute(
+                        'style', 'background-color: rgb(' 
+                        + color.red + ',' 
+                        + color.green + ',' 
+                        + color.blue 
+                        + '); width: 30px; height: 30px; display: inline-block; margin: 2px');
+                }
+            }
 
             // -------- render quantized image ---------
 
             function renderQuantized(originalImageData, clusters) {
-                var original = $('#original-image')[0];
-                var canvas = $('#quantized-image')[0];
+                var original = document.getElementById('scaled-image');
+                var canvas = document.getElementById('quantized-image');
                 var bytes = originalImageData.data;
                 var cluster;
                 canvas.width = original.width;
                 canvas.height = original.height;
                 var ctx = canvas.getContext('2d');
                 var imageData = ctx.createImageData(originalImageData.width, originalImageData.height)
-                for (var i = 0; i < bytes.length; i = i + 4) {
-                    c = ColorScheme.findNearestCluster(bytes[i], bytes[i+1], bytes[i+2], clusters);
-                    imageData.data[i] = c.red;
-                    imageData.data[i+1] = c.green;
-                    imageData.data[i+2] = c.blue;
+                var len = bytes.length;
+                for (var i = 0; i < len; i = i + 4) {
+                    var color = new RgbColor(bytes[i], bytes[i+1], bytes[i+2]);
+                    c = ColorScheme.findNearestCluster(color, clusters);
+                    imageData.data[i] = c.color.red;
+                    imageData.data[i+1] = c.color.green;
+                    imageData.data[i+2] = c.color.blue;
                     imageData.data[i+3] = bytes[i+3];
                 }
                 ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
             }
-
+            
         </script>
+    </head>
+    <body onload="setup()">
+        <input type="file" id="file" name="file" />
+        <br>
+            <img id="original-image" hidden="true" onload="imageLoaded()" />
+        <br>
+        <canvas id="scaled-image"  width="50" height="50"></canvas>
+        <p>
+        <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
+        <input type="button" id="go" name="go" value="Go" onClick="execute()" />
+        <br>
+        <svg id="clusters-svg" width="200" height="200"></svg>
+        <br>
+        <div id="colors-div"></div>
+        <br>
+        <canvas id="quantized-image"  width="50" height="50"></canvas>
+
+        
 
     </body>
 </html
