@@ -5,6 +5,7 @@
         <script src="http://d3js.org/d3.v3.min.js"></script>
         <script src="http://underscorejs.org/underscore-min.js"></script>
         <script src="ColorScheme.js"></script>
+        <script src="ui/Navigation.js"></script>
         <script>
 
             // --------- Load a file -----------------
@@ -41,7 +42,12 @@
             function setup() {
                 var fileInput = document.getElementById("file");
                 fileInput.onchange = fileopen;
+                var nextButton = document.getElementById("next-button");
+                nextButton.onclick = Steps.next;
+                var previousButton = document.getElementById("previous-button");
+                previousButton.onclick = Steps.previous;
             }
+
 
             function execute() {
                 var count = document.getElementById('cluster-count').value;
@@ -158,22 +164,32 @@
         </script>
     </head>
     <body onload="setup()">
-        <input type="file" id="file" name="file" />
-        <br>
-            <img id="original-image" hidden="true" onload="imageLoaded()" />
-        <br>
-        <canvas id="scaled-image"  width="50" height="50"></canvas>
-        <p>
-        <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
-        <input type="button" id="go" name="go" value="Go" onClick="execute()" />
-        <br>
-        <svg id="clusters-svg" width="200" height="200"></svg>
-        <br>
-        <div id="colors-div"></div>
-        <br>
-        <canvas id="quantized-image"  width="50" height="50"></canvas>
-
-        
+        <div id="container" style="position: absolute;">
+            <div id="select-image-div">
+                <div>
+                    <div>
+                        <input type="file" id="file" name="file" />
+                    </div>
+                    <img id="original-image" hidden="true" onload="imageLoaded()" />
+                    <div>
+                        <canvas id="scaled-image"  width="50" height="50"></canvas>
+                    </div>
+                </div>
+                <div hidden="true">
+                    <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
+                    <input type="button" id="go" name="go" value="Go" onClick="execute()" />
+                </div>
+            </div>
+            <div hidden="true">
+                <svg id="clusters-svg" width="200" height="200"></svg>
+                <div id="colors-div"></div>
+                <canvas id="quantized-image"  width="50" height="50"></canvas>
+            </div>
+            <div id="nav-div" style="float: right;">
+                <button id ="previous-button">Previous</button>
+                <button id ="next-button">Next</button>
+            </div>
+        </div>
 
     </body>
 </html
