@@ -3,7 +3,6 @@
     <head>
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
         <script src="RgbColor.js"></script>
-        <script src="http://d3js.org/d3.v3.min.js"></script>
         <script src="http://underscorejs.org/underscore-min.js"></script>
         <script src="ColorScheme.js"></script>
         <script src="ui/Steps.js"></script>
@@ -74,7 +73,6 @@
             function execute() {
                 var count = document.getElementById('cluster-count').value;
                 clusters = ColorScheme.clusterColors(originalImageData.data, count);
-                renderCircles();
                 var colors = clusters.map(function(x) { return x.color; });
                 colors = ColorScheme.sortColors(colors);
                 buildColorDivs(colors);
@@ -95,49 +93,7 @@
             }
 
             //----------------- render clusters -----------------
-
-            function renderCircles() {
-                var pack = d3.layout.pack()
-                    .size([200, 200]);
-
-                var data = _.map(clusters, function(d) {
-                    return {
-                        name: d.name,
-                        value: d.count,
-                        more: d.color
-                    };
-                });
-
-                var root = {
-                    name: 'root',
-                    value: 1,
-                    children: data
-                }
-
-                var nodes = pack(root);
-
-                d3.select('body').append('br');
-                var svg = d3.select('body').select('#clusters-svg')
-                    .attr('width', 200)
-                    .attr('height', 200);
-
-                var circles = svg.selectAll('circle').data(nodes);
-                circles.enter().append('circle');
-                circles.attr('cx', function(d) { return d.x; })
-                    .attr('cy', function(d) { return d.y; })
-                    .attr('r', function(d) { return d.r; })
-                    .style('fill', fillColorRule)
-                    .style('stroke', 'black');
-                circles.exit().remove();
-            }
-
-            function fillColorRule(d) {
-                if (d.depth == 0) {
-                    return 'none';
-                } else {
-                    return 'rgb(' + d.more.red + ',' + d.more.green + ',' + d.more.blue + ')';
-                };
-            }
+            
             
             function buildColorDivs(colors) {
                 var colorsBand = document.getElementById("colors-div");
@@ -237,9 +193,10 @@
                     <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
                     <input type="button" id="go" name="go" value="Go" onClick="execute()" />
                 </div>
-                <svg id="clusters-svg" width="200" height="200"></svg>
                 <div id="colors-div"></div>
-                <canvas id="quantized-image"  width="50" height="50"></canvas>
+                <div>
+                    <canvas id="quantized-image"  width="50" height="50"></canvas>
+                </div>
             </div>
             <div id="nav-div" style="float: right;" class="w3-section">
                 <button id ="previous-button" class="w3-button w3-round">Previous</button>
