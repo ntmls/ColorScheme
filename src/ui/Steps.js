@@ -26,6 +26,9 @@ var Steps = (function() {
         context.setClusterColorsVisible(false);
         context.setPickImageVisible(true);
     }
+    ChooseImageStep.prototype.exit = function(context) {
+        context.setPickImageVisible(false);
+    }
     ChooseImageStep.prototype.next = function(context) { ;
         context.setState(clusterColorStep);
     }; 
@@ -37,7 +40,9 @@ var Steps = (function() {
         context.setNextVisible(true);
         context.setPreviousVisible(true);
         context.setClusterColorsVisible(true);
-        context.setPickImageVisible(false);
+    }
+    ClusterColorStep.prototype.exit = function(context) {
+        context.setClusterColorsVisible(false);
     }
     ClusterColorStep.prototype.previous = function(context) { 
         context.setTitle(context.PICK_IMAGE_TITLE);
