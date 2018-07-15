@@ -21,6 +21,10 @@ var Steps = (function() {
     inherit(ChooseImageStep, StepState);
     ChooseImageStep.prototype.enter = function(context) {
         context.setTitle(context.PICK_IMAGE_TITLE);
+        context.setNextVisible(true);
+        context.setPreviousVisible(false);
+        context.setClusterColorsVisible(false);
+        context.setPickImageVisible(true);
     }
     ChooseImageStep.prototype.next = function(context) { ;
         context.setState(clusterColorStep);
@@ -30,6 +34,10 @@ var Steps = (function() {
     inherit(ClusterColorStep, StepState);
     ClusterColorStep.prototype.enter = function(context) {
         context.setTitle(context.CLUSTER_COLORS_TITLE);
+        context.setNextVisible(true);
+        context.setPreviousVisible(true);
+        context.setClusterColorsVisible(true);
+        context.setPickImageVisible(false);
     }
     ClusterColorStep.prototype.previous = function(context) { 
         context.setTitle(context.PICK_IMAGE_TITLE);
@@ -63,15 +71,25 @@ var Steps = (function() {
                 _state.enter(_self);
             }
         };
-        /*
-        this.setView = function(view) {
-            _view = view;
-            _state.enter();
-        };
-        */
+
         this.setTitle = function(title) {
             _view.setTitle(title);
         }
+        
+        this.setNextVisible = function(visible) {
+            _view.setNextVisible(visible);
+        }
+        
+        this.setPreviousVisible = function(visible) {
+            _view.setPreviousVisible(visible);
+        }
+        
+        this.setClusterColorsVisible = function(visible) {
+            _view.setClusterColorsVisible(visible);    
+        };
+        this.setPickImageVisible = function(visible) {
+            _view.setPickImageVisible(visible);                              
+        };
         
         // -------  actions -----------
         
@@ -89,7 +107,7 @@ var Steps = (function() {
         return context;
     };
     return {
-        createContext: createContext
+        createContext: createContext, 
     };
     
 })();

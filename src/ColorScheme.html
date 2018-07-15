@@ -57,13 +57,7 @@
             }
 
             // ---------- execute -----------------
-            
-            function View() {
-                this.setTitle = function(value) {
-                    var title = document.getElementById('step-title');
-                    title.innerHTML = value;
-                };
-            }
+    
             
             function setup() {
                 var view = new View();
@@ -189,6 +183,36 @@
                 ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
             }
             
+            // ----------------- view object ------------------------------
+            
+            function View() {
+                this.setTitle = function(value) {
+                    var title = document.getElementById('step-title');
+                    title.innerHTML = value;
+                };
+                this.setNextVisible = function(visible) {
+                    setElementVisible('next-button', visible);
+                };
+                this.setPreviousVisible = function(visible) {
+                    setElementVisible('previous-button', visible);
+                };
+                this.setPickImageVisible = function(visible) {
+                    setElementVisible('select-image-div', visible);
+                };
+                this.setClusterColorsVisible = function(visible) {
+                    setElementVisible('cluster-colors-div', visible);
+                };
+            }
+            
+            var setElementVisible = function(id, visible) {
+                var elem = document.getElementById(id);
+                if (visible) {
+                    elem.style.display = 'inline';
+                } else {
+                    elem.style.display = 'none';
+                }
+            }
+            
         </script>
     </head>
     <body onload="setup()">
@@ -207,12 +231,12 @@
                         <canvas id="scaled-image"  width="50" height="50"></canvas>
                     </div>
                 </div>
-                <div hidden="true">
+            </div>
+            <div id="cluster-colors-div" class="w3-section w3-card-4">
+                <div>
                     <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
                     <input type="button" id="go" name="go" value="Go" onClick="execute()" />
                 </div>
-            </div>
-            <div hidden="true" class="w3-section w3-card-4">
                 <svg id="clusters-svg" width="200" height="200"></svg>
                 <div id="colors-div"></div>
                 <canvas id="quantized-image"  width="50" height="50"></canvas>
