@@ -1,44 +1,95 @@
 var Steps = (function() {
     
+    var inherit = function(to, from) {
+        for (var f in from.prototype) {
+            if (to.prototype[f] == undefined) {
+                to.prototype[f] = from.prototype[f];
+            }
+        }
+    };
     
-    function ChooseImageStep() {
-        this.previous = function(context) { }; 
-        this.next = function(context) { 
-            context.view.setTitle(context.CLUSTER_COLORS_TITLE);
-            context.currentStep = clusterColorStep;
-        }; 
+    function State() { };
+    State.prototype.enter = function(context) { };
+    State.prototype.exit = function(context) { };
+    
+    function StepState() { };
+    inherit(StepState, State);
+    StepState.prototype.previous = function(context) { };
+    StepState.prototype.next = function(context) { };
+    
+    function ChooseImageStep() { }
+    inherit(ChooseImageStep, StepState);
+    ChooseImageStep.prototype.enter = function(context) {
+        context.setTitle(context.PICK_IMAGE_TITLE);
     }
+    ChooseImageStep.prototype.next = function(context) { ;
+        context.setState(clusterColorStep);
+    }; 
     
-    function ClusterColorStep() {
-        this.previous = function(context) { 
-            context.view.setTitle(context.PICK_IMAGE_TITLE);
-            context.currentStep = chooseImageStep;
-        }; 
-        this.next = function(context) {}; 
+    function ClusterColorStep() { }
+    inherit(ClusterColorStep, StepState);
+    ClusterColorStep.prototype.enter = function(context) {
+        context.setTitle(context.CLUSTER_COLORS_TITLE);
     }
-    
-    var context = new Context();
+    ClusterColorStep.prototype.previous = function(context) { 
+        context.setTitle(context.PICK_IMAGE_TITLE);
+        context.setState(chooseImageStep);
+    }; 
+
     var chooseImageStep = new ChooseImageStep();
     var clusterColorStep = new ClusterColorStep();
-    context.currentStep = chooseImageStep;
     
-    function Context() {
-        var self = this;
+    function Context(view) {
+        
+        // ----------- internals ----------------
+        
+        var _self = this;
+        var _view = view;
+        var _state = null;
+        
+        // -------- singletons / constants --------------
+        
         this.PICK_IMAGE_TITLE = "Pick an Image";
         this.CLUSTER_COLORS_TITLE = "Cluster Colors";
-        this.currentStep = null;
-        this.setView = function(view) {
-            this.view = view;
-            view.setTitle(this.PICK_IMAGE_TITLE);
+        
+        // -------  accessors -----------
+        
+        this.setState = function(state) {
+            if (_state !== state) {
+                if (_state !== null) {
+                    _state.exit(_self);
+                }
+                _state = state;
+                _state.enter(_self);
+            }
         };
+        /*
+        this.setView = function(view) {
+            _view = view;
+            _state.enter();
+        };
+        */
+        this.setTitle = function(title) {
+            _view.setTitle(title);
+        }
+        
+        // -------  actions -----------
+        
         this.previous = function(){ 
-            self.currentStep.previous(self);
+            _state.previous(_self);
         }; 
         this.next = function() { 
-            self.currentStep.next(self);
-        }; 
+            _state.next(_self);
+        };
     }
 
-    return context;
+    var createContext = function(view) {
+        var context = new Context(view);  
+        context.setState(chooseImageStep);
+        return context;
+    };
+    return {
+        createContext: createContext
+    };
     
 })();

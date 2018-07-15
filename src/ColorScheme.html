@@ -67,13 +67,13 @@
             
             function setup() {
                 var view = new View();
-                Steps.setView(view);
+                var context = Steps.createContext(view);
                 var fileInput = document.getElementById("file");
                 fileInput.onchange = fileopen;
                 var nextButton = document.getElementById("next-button");
-                nextButton.onclick = Steps.next;
+                nextButton.onclick = context.next;
                 var previousButton = document.getElementById("previous-button");
-                previousButton.onclick = Steps.previous;
+                previousButton.onclick = context.previous;
             }
 
 
