@@ -1,0 +1,88 @@
+var Actions = (function () {
+
+    var next = function () {
+        var action = { type: ACTION_NEXT_SCREEN };
+        model.update(action);
+    }
+
+    var previous = function () {
+        var action = { type: ACTION_PREVIOUS_SCREEN };
+        model.update(action);
+    }
+
+    var imageLoaded = function () {
+        var pic = document.getElementById('original-image');
+        var scale = getScale(pic.width, pic.height, 640, 640);
+        var action = {
+            type: 'image-loaded',
+            width: Math.floor(pic.width * scale),
+            height: Math.floor(pic.height * scale)
+        }
+        model.update(action);
+
+        // follow up action because the scaled image needs to be rendered before grabbing the bytes from it.
+        initializeImageData(); 
+    }
+
+    var initializeImageData = function () {
+        var canvas = document.getElementById('scaled-image');
+        var ctx = canvas.getContext('2d');
+        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var action = {
+            type: ACTION_INITIALIZE_IMAGE_DATA,
+            imageData: imageData
+        };
+        model.update(action);
+    };
+
+    var getScale = function(sWidth, sHeight, tWidth, tHeight) {
+        var scale = tWidth / sWidth;
+        if (sHeight * scale > tHeight) {
+            scale = tHeight / sHeight;
+        }
+        return scale;
+    }
+
+    var openFile = function(e) {
+        try {
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            reader.onload = readFile;
+            reader.readAsDataURL(file);
+        } catch (ex) {
+            alert(ex.line);
+        }
+    }
+
+    var readFile = function(e) {
+        var action = {
+            type: ACTION_CHANGE_IMAGE,
+            file: e.target.result
+        }
+        model.update(action);
+    }
+
+    var clusterColors = function () {
+        var count = document.getElementById('cluster-count').value;
+        var state = model.getState();
+        clusters = ColorScheme.clusterColors(state.domain.imageData.data, count);
+        var colors = clusters.map(function (x) { return x.color; });
+        colors = ColorScheme.sortColors(colors); 
+        var action = {
+            type: ACTION_CLUSTER_COLORS, 
+            colorCount: count,
+            colors: colors
+        }
+        model.update(action);
+    };
+
+    return {
+        next: next,
+        previous: previous,
+        imageLoaded: imageLoaded,
+        initializeImageData: initializeImageData,
+        openFile: openFile,
+        clusterColors: clusterColors
+    }
+
+})();
