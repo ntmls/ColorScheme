@@ -218,13 +218,20 @@ var ColorScheme = (function() {
         };
         return newCluster;
     };
-    
-     var findNearestCluster = function(color, clusters) {
-        var min, minDist = 9999999, dist, cluster, len;
+
+    // added colorSelector so this can work with either an array of clusters or an array of colors.
+    var findNearestCluster = function (color, clusters, colorSelector) {
+        if (colorSelector === undefined) {
+            colorSelector = function (x) {
+                return x.color;
+            };
+        };
+        var min, minDist = 9999999, dist, cluster, len, itemColor;
         len = clusters.length;
         for (var i = 0; i < len; i = i + 1) {
             cluster = clusters[i];
-            dist = cluster.color.distanceFromSquared(color);
+            itemColor = colorSelector(cluster);
+            dist = itemColor.distanceFromSquared(color);
             if (dist < minDist) {
                 minDist = dist;
                 min = cluster;

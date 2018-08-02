@@ -1,123 +1,60 @@
 <!DOCTYPE="html">
 <html>
     <head>
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> 
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <script src="RgbColor.js"></script>
         <script src="http://underscorejs.org/underscore-min.js"></script>
         <script src="ColorScheme.js"></script>
-        <script src="ui/Steps.js"></script>
+        <script src="ui/transition.js"></script>
+        <script src="ui/view.js"></script>
+        <script src="ui/Model.js"></script>
+        <script src="ui/Actions.js"></script>
+
         <style>
             .fileUpload {
                 position: relative;
                 overflow: hidden;
                 margin: 10px;
             }
-            .fileUpload input.upload {
-                position: absolute;
-                top: 0;
-                right: 0;
-                margin: 0;
-                padding: 0;
-                font-size: 20px;
-                cursor: pointer;
-                opacity: 0;
-                filter: alpha(opacity=0);
-            }
+
+                .fileUpload input.upload {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 20px;
+                    cursor: pointer;
+                    opacity: 0;
+                    filter: alpha(opacity=0);
+                }
         </style>
         <script>
 
-            // --------- Load a file -----------------
+            var clusters;
+            var model, view;
 
-            var clusters,
-                originalImageData;
-
-            function fileopen(e) {
-                try {
-                    var file = e.target.files[0];
-                    var reader = new FileReader();
-                    reader.onload = readFile;
-                    reader.readAsDataURL(file);
-                } catch(ex) {
-                    alert(ex.line);
-                }
-            }
-
-            function readFile(e) {
-                var pic = document.getElementById('original-image');
-                pic.src = e.target.result;
-            }
-
-            function getScale(sWidth, sHeight, tWidth, tHeight) {
-                var scale = tWidth / sWidth;
-                if (sHeight * scale > tHeight) {
-                    scale = tHeight / sHeight;
-                }
-                return scale;
-            }
-
-            // ---------- execute -----------------
-    
-            
             function setup() {
-                var view = new View();
-                var context = Steps.createContext(view);
-                var fileInput = document.getElementById("file");
-                fileInput.onchange = fileopen;
-                var nextButton = document.getElementById("next-button");
-                nextButton.onclick = context.next;
-                var previousButton = document.getElementById("previous-button");
-                previousButton.onclick = context.previous;
+                view = new View(document);
+                model = new Model(view, transition);
+                model.initialize();
             }
 
-
+            /*
             function execute() {
+              
                 var count = document.getElementById('cluster-count').value;
                 clusters = ColorScheme.clusterColors(originalImageData.data, count);
-                var colors = clusters.map(function(x) { return x.color; });
+                var colors = clusters.map(function (x) { return x.color; });
                 colors = ColorScheme.sortColors(colors);
+              
                 buildColorDivs(colors);
                 renderQuantized(originalImageData, clusters);
             }
-            
-            function imageLoaded() {
-                var pic = document.getElementById('original-image');
-                var scale = getScale(pic.width, pic.height, 640, 640);
-                var canvas = document.getElementById('scaled-image');
-                canvas.width = pic.width * scale;
-                canvas.height = pic.height * scale;
-                ctx = canvas.getContext('2d');
-                ctx.drawImage(pic,
-                    0, 0, pic.width, pic.height,
-                    0, 0, pic.width * scale, pic.height * scale);
-                originalImageData = ctx.getImageData(0, 0, pic.width * scale, pic.height * scale);
-            }
-
-            //----------------- render clusters -----------------
-            
-            
-            function buildColorDivs(colors) {
-                var colorsBand = document.getElementById("colors-div");
-                while (colorsBand.firstChild) {
-                    colorsBand.removeChild(colorsBand.firstChild);
-                }
-                var len = colors.length;
-                var width = Math.floor(100 / len);
-                for (let i=0; i<len; i++) {
-                    var color = colors[i];
-                    var div = document.createElement("div");
-                    colorsBand.appendChild(div);
-                    div.setAttribute('id', "colors-div-" + i);
-                    div.setAttribute(
-                        'style', 'background-color: rgb(' 
-                        + color.red + ',' 
-                        + color.green + ',' 
-                        + color.blue 
-                        + '); width: 30px; height: 30px; display: inline-block; margin: 2px');
-                }
-            }
+            */
 
             // -------- render quantized image ---------
-
+            /*
             function renderQuantized(originalImageData, clusters) {
                 var original = document.getElementById('scaled-image');
                 var canvas = document.getElementById('quantized-image');
@@ -129,80 +66,19 @@
                 var imageData = ctx.createImageData(originalImageData.width, originalImageData.height)
                 var len = bytes.length;
                 for (var i = 0; i < len; i = i + 4) {
-                    var color = new RgbColor(bytes[i], bytes[i+1], bytes[i+2]);
+                    var color = new RgbColor(bytes[i], bytes[i + 1], bytes[i + 2]);
                     c = ColorScheme.findNearestCluster(color, clusters);
                     imageData.data[i] = c.color.red;
-                    imageData.data[i+1] = c.color.green;
-                    imageData.data[i+2] = c.color.blue;
-                    imageData.data[i+3] = bytes[i+3];
+                    imageData.data[i + 1] = c.color.green;
+                    imageData.data[i + 2] = c.color.blue;
+                    imageData.data[i + 3] = bytes[i + 3];
                 }
                 ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
             }
-            
-            // ----------------- view object ------------------------------
-            
-            function View() {
-                this.setTitle = function(value) {
-                    var title = document.getElementById('step-title');
-                    title.innerHTML = value;
-                };
-                this.setNextVisible = function(visible) {
-                    setElementVisible('next-button', visible);
-                };
-                this.setPreviousVisible = function(visible) {
-                    setElementVisible('previous-button', visible);
-                };
-                this.setPickImageVisible = function(visible) {
-                    setElementVisible('select-image-div', visible);
-                };
-                this.setClusterColorsVisible = function(visible) {
-                    setElementVisible('cluster-colors-div', visible);
-                };
-            }
-            
-            var setElementVisible = function(id, visible) {
-                var elem = document.getElementById(id);
-                if (visible) {
-                    elem.style.display = 'inline';
-                } else {
-                    elem.style.display = 'none';
-                }
-            }
-            
+            */
         </script>
     </head>
     <body onload="setup()">
-        <div id="container" style="position: absolute;">
-            <div>
-                <h1 id="step-title">Place Holder</h1>
-            </div>
-            <div id="select-image-div" class="w3-section w3-card-4">
-                <div>
-                    <div class="fileUpload w3-button">
-                        <span>Change Image</span>
-                        <input type="file" id="file" class="upload" name="file" />
-                    </div>
-                    <img id="original-image" hidden="true" onload="imageLoaded()" />
-                    <div>
-                        <canvas id="scaled-image"  width="50" height="50"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div id="cluster-colors-div" class="w3-section w3-card-4">
-                <div>
-                    <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="16" />
-                    <input type="button" id="go" name="go" value="Go" onClick="execute()" />
-                </div>
-                <div id="colors-div"></div>
-                <div>
-                    <canvas id="quantized-image"  width="50" height="50"></canvas>
-                </div>
-            </div>
-            <div id="nav-div" style="float: right;" class="w3-section">
-                <button id ="previous-button" class="w3-button w3-round">Previous</button>
-                <button id ="next-button" class="w3-button w3-round">Next</button>
-            </div>
-        </div>
-
+        <div id="container" style="position: absolute;"></div>
     </body>
-</html
+</html>
