@@ -101,18 +101,18 @@ function View(document) {
 
     var renderQuantized = function (state) {
         if (state.navigation.showClusterColors && state.domain.colors.length > 0) {
+            var colors = state.domain.colors;
             var canvas = document.getElementById('quantized-image');
             var bytes = state.domain.imageData.data;
-            var colorSelector = function (x) { return x; };
             var ctx = canvas.getContext('2d');
             var imageData = ctx.createImageData(state.domain.imageData.width, state.domain.imageData.height);
             var len = bytes.length;
             for (var i = 0; i < len; i = i + 4) {
                 var color = new RgbColor(bytes[i], bytes[i + 1], bytes[i + 2]);
-                var found = ColorScheme.findNearestCluster(color, state.domain.colors, colorSelector);
-                imageData.data[i] = found.red;
-                imageData.data[i + 1] = found.green;
-                imageData.data[i + 2] = found.blue;
+                var found = ColorScheme.findNearestColor(color, colors);
+                imageData.data[i] = colors[found].red;
+                imageData.data[i + 1] = colors[found].green;
+                imageData.data[i + 2] = colors[found].blue;
                 imageData.data[i + 3] = bytes[i + 3];
             }
             ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);

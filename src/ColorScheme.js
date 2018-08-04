@@ -45,15 +45,6 @@ var ColorScheme = (function() {
         }
         return result;
     };
-
-    /*
-    var distanceFromClusterSquared = function(red1, green1, blue1, red2, green2, blue2) {
-        var deltaRed = red2 - red1;
-        var deltaGreen = green2 - green1;
-        var deltaBlue = blue2 - blue1;
-        return deltaRed * deltaRed + deltaGreen * deltaGreen + deltaBlue * deltaBlue;
-    }
-    */
     
     // --------------- Color Sorting (exaustive search) -------
     
@@ -171,21 +162,24 @@ var ColorScheme = (function() {
     
     // -------------------------------------------------------
 
-    var resetClusters = function(clusters) {
-        return map(resetCluster, clusters);
-    };
+    function iterate(bytes, clusters) {
 
-    var resetCluster = function(cluster) {
-        return {
-            name: cluster.name,
-            color: cluster.color,
-            count: 1,
-            sum: new RgbColor(0,0,0)
-        };
-    };
+        // initialize working variables
+        var numClusters = clusters.length;
+        var colors = new Array(numClusters);
+        var sumRed = new Array(numClusters);
+        var sumGreen = new Array(numClusters);
+        var sumBlue = new Array(numClusters);
+        var counts = new Array(numClusters);
+        for (var i = 0; i < numClusters; i++) {
+            colors[i] = clusters[i].color;
+            sumRed[i] = 0;
+            sumGreen[i] = 0;
+            sumBlue[i] = 0;
+            counts[i] = 0;
+        }
 
-    var iterate = function(bytes, clusters) {
-        var newClusters = resetClusters(clusters);
+        // total up the pixels that fall under each cluster
         var color, c, len;
         len = bytes.length;
         for (var i = 0; i < len; i = i + 4) {
@@ -193,48 +187,34 @@ var ColorScheme = (function() {
                 bytes[i],
                 bytes[i + 1],
                 bytes[i + 2]);
-            c = ColorScheme.findNearestCluster(color, newClusters);
+            c = ColorScheme.findNearestColor(color, colors);
             if (c === undefined) {
                 throw "undefined";
             }
-            c.sum = c.sum.add(color);
-            c.count = c.count + 1;
+            sumRed[c] += color.red;
+            sumGreen[c] += color.green;
+            sumBlue[c] += color.blue;
+            counts[c] += 1;
         }
-        var normalized = normalizeClusters(newClusters);
-        return normalized;
-    };
-    
-    var normalizeClusters = function(clusters) {
-        return map(normalizeCluster, clusters);
-    };
-    
-    var normalizeCluster = function(cluster) {
-        var scale = 1 / cluster.count;
-        var newCluster = {
-            name: cluster.name,
-            color: cluster.sum.scale(scale).toValidColor(),
-            count: cluster.count,
-            sum: new RgbColor(0,0,0)
-        };
-        return newCluster;
-    };
 
-    // added colorSelector so this can work with either an array of clusters or an array of colors.
-    var findNearestCluster = function (color, clusters, colorSelector) {
-        if (colorSelector === undefined) {
-            colorSelector = function (x) {
-                return x.color;
-            };
-        };
-        var min, minDist = 9999999, dist, cluster, len, itemColor;
-        len = clusters.length;
+        //normalize the results
+        for (var i = 0; i < numClusters; i++) {
+            clusters[i].color.red = Math.floor(sumRed[i] / counts[i]);
+            clusters[i].color.green = Math.floor(sumGreen[i] / counts[i]);
+            clusters[i].color.blue = Math.floor(sumBlue[i] / counts[i]);
+        }
+        return clusters;
+    };
+    
+    var findNearestColor = function (color, colors) {
+        var min, minDist = 9999999, dist, len, itemColor;
+        len = colors.length;
         for (var i = 0; i < len; i = i + 1) {
-            cluster = clusters[i];
-            itemColor = colorSelector(cluster);
-            dist = itemColor.distanceFromSquared(color);
+            item = colors[i];
+            dist = item.distanceFromSquared(color);
             if (dist < minDist) {
                 minDist = dist;
-                min = cluster;
+                min = i;
             }
         }
         if (min === undefined) {
@@ -258,9 +238,9 @@ var ColorScheme = (function() {
     }
 
     return {
-        "clusterColors": clusterColors, 
-        "findNearestCluster": findNearestCluster,
-        "sortColors": sortColors
+        clusterColors: clusterColors, 
+        findNearestColor: findNearestColor,
+        sortColors: sortColors
     };
     
 })(); 
