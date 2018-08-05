@@ -30,52 +30,12 @@
                 }
         </style>
         <script>
-
-            var clusters;
             var model, view;
-
             function setup() {
                 view = new View(document);
                 model = new Model(view, transition);
                 model.initialize();
             }
-
-            /*
-            function execute() {
-              
-                var count = document.getElementById('cluster-count').value;
-                clusters = ColorScheme.clusterColors(originalImageData.data, count);
-                var colors = clusters.map(function (x) { return x.color; });
-                colors = ColorScheme.sortColors(colors);
-              
-                buildColorDivs(colors);
-                renderQuantized(originalImageData, clusters);
-            }
-            */
-
-            // -------- render quantized image ---------
-            /*
-            function renderQuantized(originalImageData, clusters) {
-                var original = document.getElementById('scaled-image');
-                var canvas = document.getElementById('quantized-image');
-                var bytes = originalImageData.data;
-                var cluster;
-                canvas.width = original.width;
-                canvas.height = original.height;
-                var ctx = canvas.getContext('2d');
-                var imageData = ctx.createImageData(originalImageData.width, originalImageData.height)
-                var len = bytes.length;
-                for (var i = 0; i < len; i = i + 4) {
-                    var color = new RgbColor(bytes[i], bytes[i + 1], bytes[i + 2]);
-                    c = ColorScheme.findNearestCluster(color, clusters);
-                    imageData.data[i] = c.color.red;
-                    imageData.data[i + 1] = c.color.green;
-                    imageData.data[i + 2] = c.color.blue;
-                    imageData.data[i + 3] = bytes[i + 3];
-                }
-                ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
-            }
-            */
         </script>
     </head>
     <body onload="setup()">
