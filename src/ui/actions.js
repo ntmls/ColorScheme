@@ -62,7 +62,7 @@ var Actions = (function () {
         model.update(action);
     }
 
-    var clusterColors = function () {
+    var clusterColors = function() {
         var count = document.getElementById('cluster-count').value;
         var state = model.getState();
         clusters = ColorScheme.clusterColors(state.domain.imageData.data, count);
@@ -75,6 +75,16 @@ var Actions = (function () {
         }
         model.update(action);
     };
+    
+    var toggleColor = function(red,green,blue) {
+        var action = {
+            type: ACTION_TOGGLE_COLOR,
+            red: red,
+            green: green, 
+            blue: blue
+        }
+        model.update(action);
+    }
 
     return {
         next: next,
@@ -82,7 +92,8 @@ var Actions = (function () {
         imageLoaded: imageLoaded,
         initializeImageData: initializeImageData,
         openFile: openFile,
-        clusterColors: clusterColors
+        clusterColors: clusterColors, 
+        toggleColor: toggleColor
     }
 
 })();

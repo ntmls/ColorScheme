@@ -3,8 +3,8 @@ function View(document) {
     this.render = function (state) {
         var container = document.getElementById('container');
         container.innerHTML =
-            renderTitle(state) +
-            renderOriginalImage(state) + 
+            renderTitle(state.navigation.title) +
+            renderOriginalImage(state.domain.file, state.domain.imageLoaded) + 
             renderPickImage(state) + 
             renderClusterColors(state) + 
             renderNavigationButtons(state);
@@ -13,16 +13,16 @@ function View(document) {
         renderQuantized(state);
     };
 
-    var renderTitle = function(state) {
-        return `<div><h1>${state.navigation.title}</h1></div>`;
+    var renderTitle = function(title) {
+        return `<div><h1>${title}</h1></div>`;
     }
 
     // if the image was already loaaded then we don't want to trigger the loading of it again. Otherwise we get stuck in a loop between rendering and loading.
-    var renderOriginalImage = function (state) {
-        if (state.domain.imageLoaded) {
-            return `<img src="${state.domain.file}" id="original-image" hidden="true" />`;
+    var renderOriginalImage = function (file, imageLoaded) {
+        if (imageLoaded) {
+            return `<img src="${file}" id="original-image" hidden="true" />`;
         } else {
-            return `<img src="${state.domain.file}" id="original-image" hidden="true" onload="Actions.imageLoaded()" />`;
+            return `<img src="${file}" id="original-image" hidden="true" onload="Actions.imageLoaded()" />`;
         }
     }
 
@@ -94,7 +94,9 @@ function View(document) {
 
     var renderColors = function (state) {
         var colors = state.domain.colors.map(function (x) {
-            return `<div style="background-color: rgb(${x.red},${x.green},${x.blue}); width: 30px; height: 30px; display: inline-block; margin: 2px"></div>`
+            var isSelected = findColor(state.domain.selectedColors, x);
+            var outline = isSelected ? "outline: 5px solid yellow; " : "";
+            return `<div style="background-color: rgb(${x.red},${x.green},${x.blue}); width: 30px; height: 30px; display: inline-block; ${outline}margin: 2px" onclick="Actions.toggleColor(${x.red}, ${x.green}, ${x.blue})"></div>`
         });
         return colors.join("\n");
     };

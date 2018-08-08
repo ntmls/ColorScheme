@@ -8,6 +8,7 @@ const ACTION_IMAGE_LOADED = 'image-loaded';
 const ACTION_INITIALIZE_IMAGE_DATA = 'init-image-data';
 const ACTION_CHANGE_IMAGE = 'change-image';
 const ACTION_CLUSTER_COLORS = 'cluster-colors';
+const ACTION_TOGGLE_COLOR = 'toggle-color';
 
 var transition = function (oldState, action) {
     return {
@@ -25,7 +26,8 @@ var domainTransition = function (oldDomain, action) {
         width: oldDomain.width,
         height: oldDomain.height,
         colorCount: oldDomain.colorCount,
-        colors: oldDomain.colors
+        colors: oldDomain.colors,
+        selectedColors: oldDomain.colors
     };
     switch (action.type) {
         case ACTION_INITIALIZE:
@@ -36,6 +38,7 @@ var domainTransition = function (oldDomain, action) {
             newDomain.height = 240;
             newDomain.colorCount = 16;
             newDomain.colors = [];
+            newDomain.selectedColors = [];
             return newDomain;
         case ACTION_IMAGE_LOADED:
             newDomain.imageLoaded = true;
@@ -54,10 +57,43 @@ var domainTransition = function (oldDomain, action) {
         case ACTION_CLUSTER_COLORS:
             newDomain.colorCount = action.colorCount,
             newDomain.colors = action.colors;
+            newDomain.selectedColors = [];
             return newDomain;
+        case ACTION_TOGGLE_COLOR:
+            var color = new RgbColor(action.red, action.green, action.blue);
+            var isSelected = findColor(oldDomain.selectedColors, color);
+            var exists = findColor(oldDomain.colors, color);
+            if (exists && !isSelected) {
+                newDomain.selectedColors = [ color, ...oldDomain.selectedColors ];
+            } else {
+                newDomain.selectedColors = removeColor(oldDomain.selectedColors, color);
+            }
+            return newDomain;
+
     }
     return oldDomain;
 }
+
+var findColor = function(colors, color) {
+    var selected = colors.filter(function(x) {
+        return (
+            x.red == color.red && 
+            x.green == color.green && 
+            x.blue == color.blue
+        );
+    });
+    return selected.length > 0;
+};
+
+var removeColor = function(colors, color) {
+    return colors.filter(function(x) {
+        return !(
+            x.red == color.red && 
+            x.green == color.green && 
+            x.blue == color.blue
+        );
+    });
+};
 
 var navigationTransition = function (oldState, action) {
     if (oldState === undefined) { oldState = {}; }
