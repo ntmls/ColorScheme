@@ -10,14 +10,14 @@ const ACTION_CHANGE_IMAGE = 'change-image';
 const ACTION_CLUSTER_COLORS = 'cluster-colors';
 const ACTION_TOGGLE_COLOR = 'toggle-color';
 
-var transition = function (oldState, action) {
+var reducer = function (oldState, action) {
     return {
-        navigation: navigationTransition(oldState.navigation, action),
-        domain: domainTransition(oldState.domain, action)
+        navigation: navigationReducer(oldState.navigation, action),
+        domain: domainReducer(oldState.domain, action)
     };
 };
 
-var domainTransition = function (oldDomain, action) {
+var domainReducer = function (oldDomain, action) {
     if (oldDomain === undefined) { oldDomain = {}; }
     var newDomain = {
         file: oldDomain.file,
@@ -95,7 +95,7 @@ var removeColor = function(colors, color) {
     });
 };
 
-var navigationTransition = function (oldState, action) {
+var navigationReducer = function (oldState, action) {
     if (oldState === undefined) { oldState = {}; }
 
     if (action.type == ACTION_INITIALIZE) {

@@ -1,4 +1,4 @@
-function Model(renderable, transition) {
+function Model(renderable, reducer) {
     var state = {};
     var updating = false;
     this.update = function (action) {
@@ -7,7 +7,7 @@ function Model(renderable, transition) {
         }
         try {
             updating = true;
-            state = transition(state, action);
+            state = reducer(state, action);
             console.log(action);
             console.log(state);
             renderable.render(state);

@@ -234,13 +234,13 @@ var ColorScheme = (function() {
     };
     
     var sortColors = function(colors) {
-        //if (colors.length > 10) {
+        if (colors.length > 10) {
             var sorter = new NearestColorSorter();
             return sorter.sort(colors);
-        //} else {
-        //    var sorter = new ExaustiveColorSorter();
-        //    return sorter.sort(colors);
-        //}
+        } else {
+            var sorter = new ExaustiveColorSorter();
+            return sorter.sort(colors);
+        }
     }
 
     return {

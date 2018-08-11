@@ -5,7 +5,7 @@
         <script src="RgbColor.js"></script>
         <script src="http://underscorejs.org/underscore-min.js"></script>
         <script src="ColorScheme.js"></script>
-        <script src="ui/transition.js"></script>
+        <script src="ui/reducer.js"></script>
         <script src="ui/view.js"></script>
         <script src="ui/Model.js"></script>
         <script src="ui/Actions.js"></script>
@@ -33,7 +33,7 @@
             var model, view;
             function setup() {
                 view = new View(document);
-                model = new Model(view, transition);
+                model = new Model(view, reducer);
                 model.initialize();
             }
         </script>
