@@ -12,7 +12,11 @@ var ColorScheme = (function() {
                     var color1, color2;
                     color1 = pair[0].color;
                     color2 = pair[1].color;
-                    return color1.distanceFromSquared(color2);
+                    let dist = color1.distanceFromSquared(color2);
+                    if (isNaN(dist)) {
+                        throw "Invalid distance."
+                    }
+                    return dist;
                 });
             if (_.every(distances, function (d) { return d == 0; })) {
                 console.log("Stoped clustering - no changes (" + i + ")");
@@ -108,7 +112,7 @@ var ColorScheme = (function() {
             }
             return result;
         };
-           
+        
         var findMinDistance = function(color, colors) {
             var len = colors.length;
             var minDist = color.distanceFrom(colors[0]);
@@ -119,20 +123,20 @@ var ColorScheme = (function() {
                 if (dist < minDist) {
                     minDist = dist;
                     minIndex = i;
-                    minColor - colors[i];
+                    minColor = colors[i];
                 }
             }
             return {
                 index: minIndex,
-                distance: minDist, 
+                distance: minDist,
                 color: minColor
             };
         };
         
         this.sort = function(colors) {
             var len = colors.length;
-            paths = new Array(len);
-            distances = new Array(len);
+            var paths = new Array(len);
+            var distances = new Array(len);
             for (var i=0; i<len; i++) {
                 let color = colors[i];
                 let remaining = removeAt(colors, i);
@@ -163,7 +167,9 @@ var ColorScheme = (function() {
     // -------------------------------------------------------
 
     function iterate(bytes, clusters) {
-
+        
+        if (clusters === undefined) { throw "Clusters undefined."; }
+        
         // initialize working variables
         var numClusters = clusters.length;
         var colors = new Array(numClusters);
@@ -188,9 +194,7 @@ var ColorScheme = (function() {
                 bytes[i + 1],
                 bytes[i + 2]);
             c = ColorScheme.findNearestColor(color, colors);
-            if (c === undefined) {
-                throw "undefined";
-            }
+            if (c === undefined) { throw "undefined"; }
             sumRed[c] += color.red;
             sumGreen[c] += color.green;
             sumBlue[c] += color.blue;
@@ -199,9 +203,11 @@ var ColorScheme = (function() {
 
         //normalize the results
         for (var i = 0; i < numClusters; i++) {
-            clusters[i].color.red = Math.floor(sumRed[i] / counts[i]);
-            clusters[i].color.green = Math.floor(sumGreen[i] / counts[i]);
-            clusters[i].color.blue = Math.floor(sumBlue[i] / counts[i]);
+            if (counts[i] !== 0) {
+                clusters[i].color.red = Math.floor(sumRed[i] / counts[i]);
+                clusters[i].color.green = Math.floor(sumGreen[i] / counts[i]);
+                clusters[i].color.blue = Math.floor(sumBlue[i] / counts[i]);
+            }
         }
         return clusters;
     };
@@ -228,13 +234,13 @@ var ColorScheme = (function() {
     };
     
     var sortColors = function(colors) {
-        if (colors.length > 10) {
+        //if (colors.length > 10) {
             var sorter = new NearestColorSorter();
             return sorter.sort(colors);
-        } else {
-            var sorter = new ExaustiveColorSorter();
-            return sorter.sort(colors);
-        }
+        //} else {
+        //    var sorter = new ExaustiveColorSorter();
+        //    return sorter.sort(colors);
+        //}
     }
 
     return {

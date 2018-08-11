@@ -95,7 +95,7 @@ function View(document) {
     var renderColors = function (state) {
         var colors = state.domain.colors.map(function (x) {
             var isSelected = findColor(state.domain.selectedColors, x);
-            var outline = isSelected ? "outline: 5px solid yellow; " : "";
+            var outline = isSelected ? "outline: 3px solid yellow; " : "";
             return `<div style="background-color: rgb(${x.red},${x.green},${x.blue}); width: 30px; height: 30px; display: inline-block; ${outline}margin: 2px" onclick="Actions.toggleColor(${x.red}, ${x.green}, ${x.blue})"></div>`
         });
         return colors.join("\n");
