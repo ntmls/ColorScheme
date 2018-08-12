@@ -242,9 +242,21 @@ var ColorScheme = (function() {
             return sorter.sort(colors);
         }
     }
+    
+    var findColor = function(colors, color) {
+        var selected = colors.filter(function(x) {
+            return (
+                x.red == color.red && 
+                x.green == color.green && 
+                x.blue == color.blue
+            );
+        });
+        return selected.length > 0;
+    };
 
     return {
         clusterColors: clusterColors, 
+        findColor: findColor, 
         findNearestColor: findNearestColor,
         sortColors: sortColors
     };

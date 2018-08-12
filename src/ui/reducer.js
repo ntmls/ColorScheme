@@ -13,11 +13,12 @@ const ACTION_TOGGLE_COLOR = 'toggle-color';
 var reducer = function (oldState, action) {
     return {
         navigation: navigationReducer(oldState.navigation, action),
-        domain: domainReducer(oldState.domain, action)
+        domain: domainReducer(oldState, action)
     };
 };
 
-var domainReducer = function (oldDomain, action) {
+var domainReducer = function (oldState, action) {
+    var oldDomain = oldState.domain;
     if (oldDomain === undefined) { oldDomain = {}; }
     var newDomain = {
         file: oldDomain.file,
@@ -61,8 +62,8 @@ var domainReducer = function (oldDomain, action) {
             return newDomain;
         case ACTION_TOGGLE_COLOR:
             var color = new RgbColor(action.red, action.green, action.blue);
-            var isSelected = findColor(oldDomain.selectedColors, color);
-            var exists = findColor(oldDomain.colors, color);
+            var isSelected = Selectors.isColorSelected(oldState, color);
+            var exists = Selectors.doesColorExist(oldState, color);
             if (exists && !isSelected) {
                 newDomain.selectedColors = [ color, ...oldDomain.selectedColors ];
             } else {
@@ -73,17 +74,6 @@ var domainReducer = function (oldDomain, action) {
     }
     return oldDomain;
 }
-
-var findColor = function(colors, color) {
-    var selected = colors.filter(function(x) {
-        return (
-            x.red == color.red && 
-            x.green == color.green && 
-            x.blue == color.blue
-        );
-    });
-    return selected.length > 0;
-};
 
 var removeColor = function(colors, color) {
     return colors.filter(function(x) {

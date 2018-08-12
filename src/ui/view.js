@@ -94,7 +94,7 @@ function View(document) {
 
     var renderColors = function (state) {
         var colors = state.domain.colors.map(function (x) {
-            var isSelected = findColor(state.domain.selectedColors, x);
+            var isSelected = Selectors.isColorSelected(state, x);
             var outline = isSelected ? "outline: 3px solid yellow; " : "";
             return `<div style="background-color: rgb(${x.red},${x.green},${x.blue}); width: 30px; height: 30px; display: inline-block; ${outline}margin: 2px" onclick="Actions.toggleColor(${x.red}, ${x.green}, ${x.blue})"></div>`
         });
@@ -112,10 +112,23 @@ function View(document) {
             for (var i = 0; i < len; i = i + 4) {
                 var color = new RgbColor(bytes[i], bytes[i + 1], bytes[i + 2]);
                 var found = ColorScheme.findNearestColor(color, colors);
-                imageData.data[i] = colors[found].red;
-                imageData.data[i + 1] = colors[found].green;
-                imageData.data[i + 2] = colors[found].blue;
-                imageData.data[i + 3] = bytes[i + 3];
+                var foundColor = new RgbColor(
+                    colors[found].red, 
+                    colors[found].green, 
+                    colors[found].blue
+                );
+                var isSelected = Selectors.isColorSelected(state, foundColor);
+                if (isSelected) {
+                    imageData.data[i] = Math.floor(colors[found].red * .25 + 255 * .75);
+                    imageData.data[i + 1] = Math.floor(colors[found].green * .25);
+                    imageData.data[i + 2] = Math.floor(colors[found].blue * .25);
+                    imageData.data[i + 3] = bytes[i + 3];
+                } else {
+                    imageData.data[i] = colors[found].red;
+                    imageData.data[i + 1] = colors[found].green;
+                    imageData.data[i + 2] = colors[found].blue;
+                    imageData.data[i + 3] = bytes[i + 3];
+                }
             }
             ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
         }
