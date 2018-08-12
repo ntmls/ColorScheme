@@ -10,75 +10,13 @@ const ACTION_CHANGE_IMAGE = 'change-image';
 const ACTION_CLUSTER_COLORS = 'cluster-colors';
 const ACTION_TOGGLE_COLOR = 'toggle-color';
 
-var reducer = function (oldState, action) {
+var reducer = function (state, action) {
     return {
-        navigation: navigationReducer(oldState.navigation, action),
-        domain: domainReducer(oldState, action)
+        navigation: navigationReducer(state, action),
+        chooseImage: chooseImageReducer(state, action),
+        clusterColors: clusterColorsReducer(state, action)
     };
 };
-
-var domainReducer = function (oldState, action) {
-    var oldDomain = oldState.domain;
-    if (oldDomain === undefined) { oldDomain = {}; }
-    var newDomain = {
-        file: oldDomain.file,
-        imageLoaded: oldDomain.imageLoaded,
-        imageData: oldDomain.imageData,
-        width: oldDomain.width,
-        height: oldDomain.height,
-        colorCount: oldDomain.colorCount,
-        colors: oldDomain.colors,
-        selectedColors: oldDomain.colors, 
-        error: oldDomain.error
-    };
-    switch (action.type) {
-        case ACTION_INITIALIZE:
-            newDomain.file = '';
-            newDomain.imageLoaded = false;
-            newDomain.imageData = null;
-            newDomain.width = 320;
-            newDomain.height = 240;
-            newDomain.colorCount = 16;
-            newDomain.colors = [];
-            newDomain.selectedColors = [];
-            newDomain.error = 0;
-            return newDomain;
-        case ACTION_IMAGE_LOADED:
-            newDomain.imageLoaded = true;
-            newDomain.width = action.width;
-            newDomain.height = action.height;
-            return newDomain;
-        case ACTION_INITIALIZE_IMAGE_DATA:
-            newDomain.imageData = action.imageData;
-            return newDomain;
-        case ACTION_CHANGE_IMAGE:
-            newDomain.file = action.file;
-            newDomain.imageLoaded = false;
-            newDomain.colors = [];
-            newDomain.imageData = null;
-            return newDomain;
-        case ACTION_CLUSTER_COLORS:
-            newDomain.colorCount = action.colorCount,
-            newDomain.colors = action.colors;
-            newDomain.selectedColors = [];
-            newDomain.error = Math.round(ColorClustering.calculateError(
-                oldDomain.imageData.data, 
-                action.colors) * 100000) / 1000;
-            return newDomain;
-        case ACTION_TOGGLE_COLOR:
-            var color = new RgbColor(action.red, action.green, action.blue);
-            var isSelected = Selectors.isColorSelected(oldState, color);
-            var exists = Selectors.doesColorExist(oldState, color);
-            if (exists && !isSelected) {
-                newDomain.selectedColors = [ color, ...oldDomain.selectedColors ];
-            } else {
-                newDomain.selectedColors = removeColor(oldDomain.selectedColors, color);
-            }
-            return newDomain;
-
-    }
-    return oldDomain;
-}
 
 var removeColor = function(colors, color) {
     return colors.filter(function(x) {
@@ -90,53 +28,135 @@ var removeColor = function(colors, color) {
     });
 };
 
-var navigationReducer = function (oldState, action) {
-    if (oldState === undefined) { oldState = {}; }
+var cloneNavigationState = function(state) {
+    return {
+        title: state.navigation.title,
+        showPrevious: state.navigation.showPrevious,
+        showNext: state.navigation.showNext,
+        showChooseImage: state.navigation.showChooseImage,
+        showClusterColors: state.navigation.showClusterColors
+    };
+};
 
+var navigationReducer = function (state, action) {
     if (action.type == ACTION_INITIALIZE) {
-        return createPickImageState(oldState);
+        var result = {};
+        result.title = PICK_IMAGE_TITLE;
+        result.showPrevious = false;
+        result.showNext = true;
+        result.showChooseImage = true;
+        result.showClusterColors = false;
+        return result;
     }
 
-    switch (oldState.title) {
+    switch (state.navigation.title) {
         case PICK_IMAGE_TITLE:
             switch (action.type) {
                 case ACTION_NEXT_SCREEN:
-                    return createClusterColorsState(oldState);
+                    var result = {};
+                    result.title = CLUSTER_COLORS_TITLE;
+                    result.showPrevious = true;
+                    result.showNext = false;
+                    result.showChooseImage = false;
+                    result.showClusterColors = true;
+                    return result;
             }
             break;
 
         case CLUSTER_COLORS_TITLE:
             switch (action.type) {
                 case ACTION_PREVIOUS_SCREEN:
-                    return createPickImageState(oldState);
+                    var result = {};
+                    result.title = PICK_IMAGE_TITLE;
+                    result.showPrevious = false;
+                    result.showNext = true;
+                    result.showChooseImage = true;
+                    result.showClusterColors = false;
+                    return result;
             }
             break;
     }
-    return oldState;
+    return state.navigation;
 }
 
-var createPickImageState = function(oldState) {
-
-    // Clone the old state just in case there is more state than what we we are trying to deal with here.
-    var newState = JSON.parse(JSON.stringify(oldState));
-
-    newState.title = PICK_IMAGE_TITLE;
-    newState.showPrevious = false;
-    newState.showNext = true;
-    newState.showChooseImage = true;
-    newState.showClusterColors = false;
-    return newState;
+var cloneChooseImage = function(state) {
+    return {
+        file: state.chooseImage.file,
+        imageLoaded: state.chooseImage.imageLoaded,
+        imageData: state.chooseImage.imageData,
+        width: state.chooseImage.width,
+        height: state.chooseImage.height
+    };
+}
+var chooseImageReducer = function(state, action) {
+    switch (action.type) {
+        case ACTION_INITIALIZE:
+            var result = {};
+            result.file = '';
+            result.imageLoaded = false;
+            result.imageData = null;
+            result.width = 320;
+            result.height = 240;
+            return result;
+        case ACTION_IMAGE_LOADED:
+            var result = cloneChooseImage(state);
+            result.imageLoaded = true;
+            result.width = action.width;
+            result.height = action.height;
+            return result;
+        case ACTION_INITIALIZE_IMAGE_DATA:
+            var result = cloneChooseImage(state);
+            result.imageData = action.imageData;
+            return result;
+        case ACTION_CHANGE_IMAGE:
+            var result = cloneChooseImage(state);
+            result.file = action.file;
+            result.imageLoaded = false;
+            result.colors = [];
+            result.imageData = null;
+            return result;
+    }
+    return state.chooseImage;;
 };
 
-var createClusterColorsState = function(oldState) {
+var cloneClusterColors = function(state) {
+    return {
+        colorCount: state.clusterColors.colorCount,
+        colors: state.clusterColors.colors,
+        selectedColors: state.clusterColors.selectedColors,
+        error: state.clusterColors.error
+    };
+};
 
-    // Clone the old state just in case there is more state than what we we are trying to deal with here.
-    var newState = JSON.parse(JSON.stringify(oldState));
-
-    newState.title = CLUSTER_COLORS_TITLE;
-    newState.showPrevious = true;
-    newState.showNext = false;
-    newState.showChooseImage = false;
-    newState.showClusterColors = true;
-    return newState;
+var clusterColorsReducer = function(state, action) {
+    switch (action.type) {
+        case ACTION_INITIALIZE:
+            var result = {};
+            result.colorCount = 16;
+            result.colors = [];
+            result.selectedColors = [];
+            result.error = 0;
+            return result;
+        case ACTION_CLUSTER_COLORS:
+            var result = cloneClusterColors(state);
+            result.colorCount = action.colorCount,
+            result.colors = action.colors;
+            result.selectedColors = [];
+            result.error = Math.round(ColorClustering.calculateError(
+                state.chooseImage.imageData.data, 
+                action.colors) * 100000) / 1000;
+            return result;
+        case ACTION_TOGGLE_COLOR:
+            var result = cloneClusterColors(state);
+            var color = new RgbColor(action.red, action.green, action.blue);
+            var isSelected = Selectors.isColorSelected(state, color);
+            var exists = Selectors.doesColorExist(state, color);
+            if (exists && !isSelected) {
+                result.selectedColors = [ color, ...state.clusterColors.selectedColors ];
+            } else {
+                result.selectedColors = removeColor(state.clusterColors.selectedColors, color);
+            }
+            return result;
+    }
+    return state.clusterColors;
 };

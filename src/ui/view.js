@@ -4,7 +4,9 @@ function View(document) {
         var container = document.getElementById('container');
         container.innerHTML =
             renderTitle(state.navigation.title) +
-            renderOriginalImage(state.domain.file, state.domain.imageLoaded) + 
+            renderOriginalImage(
+                Selectors.getFile(state), 
+                Selectors.isImageLoaded(state)) + 
             renderPickImage(state) + 
             renderClusterColors(state) + 
             renderNavigationButtons(state);
@@ -47,7 +49,7 @@ function View(document) {
                         <input type="file" id="file" class="upload" name="file" />
                     </div>
                     <div>
-                        <canvas id="scaled-image"  width="${state.domain.width}" height="${state.domain.height}"></canvas>
+                        <canvas id="scaled-image"  width="${state.chooseImage.width}" height="${state.chooseImage.height}"></canvas>
                     </div>
                 </div>
             </div>`;
@@ -67,12 +69,12 @@ function View(document) {
         var canvas = document.getElementById('scaled-image');
         if (canvas != null) {
             var pic = document.getElementById('original-image');
-            canvas.width = state.domain.width;
-            canvas.height = state.domain.height;
+            canvas.width = state.chooseImage.width;
+            canvas.height = state.chooseImage.height;
             var ctx = canvas.getContext('2d');
             ctx.drawImage(pic,
                 0, 0, pic.width, pic.height,
-                0, 0, state.domain.width, state.domain.height);
+                0, 0, state.chooseImage.width, state.chooseImage.height);
         }
     }
 
@@ -80,21 +82,21 @@ function View(document) {
         if (!state.navigation.showClusterColors) { return ''; }
         return `<div class="w3-section w3-card-4">
                 <div>
-                    <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="${state.domain.colorCount}" />
+                    <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="${state.clusterColors.colorCount}" />
                     <input type="button" id="go" name="go" value="Refresh" onClick="Actions.clusterColors()" />
                 </div>
                 <div id="colors-div">
                 ${renderColors(state)}
                 </div>
-                <div>Error: ${state.domain.error}</div>
+                <div>Error: ${state.clusterColors.error}</div>
                 <div>
-                    <canvas id="quantized-image"  width="${state.domain.width}" height="${state.domain.height}"></canvas>
+                    <canvas id="quantized-image"  width="${state.chooseImage.width}" height="${state.chooseImage.height}"></canvas>
                 </div>
             </div>`;
     };
 
     var renderColors = function (state) {
-        var colors = state.domain.colors.map(function (x) {
+        var colors = state.clusterColors.colors.map(function (x) {
             var isSelected = Selectors.isColorSelected(state, x);
             var outline = isSelected ? "outline: 3px solid yellow; " : "";
             return `<div style="background-color: rgb(${x.red},${x.green},${x.blue}); width: 30px; height: 30px; display: inline-block; ${outline}margin: 2px" onclick="Actions.toggleColor(${x.red}, ${x.green}, ${x.blue})"></div>`
@@ -103,12 +105,12 @@ function View(document) {
     };
 
     var renderQuantized = function (state) {
-        if (state.navigation.showClusterColors && state.domain.colors.length > 0) {
-            var colors = state.domain.colors;
+        if (state.navigation.showClusterColors && state.clusterColors.colors.length > 0) {
+            var colors = state.clusterColors.colors;
             var canvas = document.getElementById('quantized-image');
-            var bytes = state.domain.imageData.data;
+            var bytes = state.chooseImage.imageData.data;
             var ctx = canvas.getContext('2d');
-            var imageData = ctx.createImageData(state.domain.imageData.width, state.domain.imageData.height);
+            var imageData = ctx.createImageData(state.chooseImage.imageData.width, state.chooseImage.imageData.height);
             var len = bytes.length;
             for (var i = 0; i < len; i = i + 4) {
                 var color = new RgbColor(bytes[i], bytes[i + 1], bytes[i + 2]);
