@@ -81,11 +81,12 @@ function View(document) {
         return `<div class="w3-section w3-card-4">
                 <div>
                     <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="${state.domain.colorCount}" />
-                    <input type="button" id="go" name="go" value="Go" onClick="Actions.clusterColors()" />
+                    <input type="button" id="go" name="go" value="Refresh" onClick="Actions.clusterColors()" />
                 </div>
                 <div id="colors-div">
                 ${renderColors(state)}
                 </div>
+                <div>Error: ${state.domain.error}</div>
                 <div>
                     <canvas id="quantized-image"  width="${state.domain.width}" height="${state.domain.height}"></canvas>
                 </div>

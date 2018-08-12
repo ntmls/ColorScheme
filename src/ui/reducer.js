@@ -28,7 +28,8 @@ var domainReducer = function (oldState, action) {
         height: oldDomain.height,
         colorCount: oldDomain.colorCount,
         colors: oldDomain.colors,
-        selectedColors: oldDomain.colors
+        selectedColors: oldDomain.colors, 
+        error: oldDomain.error
     };
     switch (action.type) {
         case ACTION_INITIALIZE:
@@ -40,6 +41,7 @@ var domainReducer = function (oldState, action) {
             newDomain.colorCount = 16;
             newDomain.colors = [];
             newDomain.selectedColors = [];
+            newDomain.error = 0;
             return newDomain;
         case ACTION_IMAGE_LOADED:
             newDomain.imageLoaded = true;
@@ -59,6 +61,9 @@ var domainReducer = function (oldState, action) {
             newDomain.colorCount = action.colorCount,
             newDomain.colors = action.colors;
             newDomain.selectedColors = [];
+            newDomain.error = Math.round(ColorClustering.calculateError(
+                oldDomain.imageData.data, 
+                action.colors) * 100000) / 1000;
             return newDomain;
         case ACTION_TOGGLE_COLOR:
             var color = new RgbColor(action.red, action.green, action.blue);

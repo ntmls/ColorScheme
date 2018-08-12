@@ -253,12 +253,27 @@ var ColorClustering = (function() {
         });
         return selected.length > 0;
     };
+    
+    var calculateError = function(bytes, colors) {
+        var len = bytes.length;
+        var color1, color2;
+        var found, sum=0;
+        for (var i = 0; i < len; i = i + 4) { 
+            color1 = new RgbColor(bytes[i], bytes[i+1], bytes[i+2]);
+            found = findNearestColor(color1, colors);
+            color2 = colors[found];
+            sum += color1.distanceFrom(color2) / 255;
+        }
+        var pixels = Math.floor(len / 4);
+        return sum / pixels;
+    }
 
     return {
         clusterColors: clusterColors, 
         findColor: findColor, 
         findNearestColor: findNearestColor,
-        sortColors: sortColors
+        sortColors: sortColors, 
+        calculateError: calculateError
     };
     
 })(); 
