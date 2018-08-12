@@ -65,9 +65,9 @@ var Actions = (function () {
     var clusterColors = function() {
         var count = document.getElementById('cluster-count').value;
         var state = model.getState();
-        clusters = ColorScheme.clusterColors(state.domain.imageData.data, count);
+        clusters = ColorClustering.clusterColors(state.domain.imageData.data, count);
         var colors = clusters.map(function (x) { return x.color; });
-        colors = ColorScheme.sortColors(colors); 
+        colors = ColorClustering.sortColors(colors); 
         var action = {
             type: ACTION_CLUSTER_COLORS, 
             colorCount: count,

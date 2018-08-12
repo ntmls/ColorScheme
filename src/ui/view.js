@@ -111,7 +111,7 @@ function View(document) {
             var len = bytes.length;
             for (var i = 0; i < len; i = i + 4) {
                 var color = new RgbColor(bytes[i], bytes[i + 1], bytes[i + 2]);
-                var found = ColorScheme.findNearestColor(color, colors);
+                var found = ColorClustering.findNearestColor(color, colors);
                 var foundColor = new RgbColor(
                     colors[found].red, 
                     colors[found].green, 

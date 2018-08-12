@@ -1,5 +1,5 @@
 /* global RgbColor, ColorSorter, _ */
-var ColorScheme = (function() {
+var ColorClustering = (function() {
 
     var clusterColors = function(bytes, n) {
         var clusters = createClusters(bytes, n),
@@ -193,7 +193,7 @@ var ColorScheme = (function() {
                 bytes[i],
                 bytes[i + 1],
                 bytes[i + 2]);
-            c = ColorScheme.findNearestColor(color, colors);
+            c = findNearestColor(color, colors);
             if (c === undefined) { throw "undefined"; }
             sumRed[c] += color.red;
             sumGreen[c] += color.green;
