@@ -85,6 +85,24 @@ var Actions = (function () {
         }
         model.update(action);
     }
+    
+    var beginMouse = function(evt) {
+        var action = {
+            type: ACTION_BEGIN_MOUSE,
+            x: evt.offsetX,
+            y: evt.offsetY
+        }
+        model.update(action);
+    }
+    
+    var endMouse = function(evt) {
+        var action = {
+            type: ACTION_END_MOUSE,
+            x: evt.offsetX,
+            y: evt.offsetY
+        }
+        model.update(action);
+    }
 
     return {
         next: next,
@@ -93,7 +111,9 @@ var Actions = (function () {
         initializeImageData: initializeImageData,
         openFile: openFile,
         clusterColors: clusterColors, 
-        toggleColor: toggleColor
+        toggleColor: toggleColor,
+        beginMouse: beginMouse,
+        endMouse: endMouse
     }
 
 })();

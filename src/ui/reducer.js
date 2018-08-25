@@ -9,37 +9,20 @@ const ACTION_INITIALIZE_IMAGE_DATA = 'init-image-data';
 const ACTION_CHANGE_IMAGE = 'change-image';
 const ACTION_CLUSTER_COLORS = 'cluster-colors';
 const ACTION_TOGGLE_COLOR = 'toggle-color';
+const ACTION_BEGIN_MOUSE = 'begin-mouse';
+const ACTION_END_MOUSE = 'end-mouse';
 
 var reducer = function (state, action) {
     return {
+        logicalClock: state.logicalClock === undefined ? 0 : state.logicalClock += 1,
         navigation: navigationReducer(state, action),
         chooseImage: chooseImageReducer(state, action),
         clusterColors: clusterColorsReducer(state, action)
     };
 };
 
-var removeColor = function(colors, color) {
-    return colors.filter(function(x) {
-        return !(
-            x.red == color.red && 
-            x.green == color.green && 
-            x.blue == color.blue
-        );
-    });
-};
-
-var cloneNavigationState = function(state) {
-    return {
-        title: state.navigation.title,
-        showPrevious: state.navigation.showPrevious,
-        showNext: state.navigation.showNext,
-        showChooseImage: state.navigation.showChooseImage,
-        showClusterColors: state.navigation.showClusterColors
-    };
-};
-
 var navigationReducer = function (state, action) {
-    if (action.type == ACTION_INITIALIZE) {
+    if (action.type === ACTION_INITIALIZE) {
         var result = {};
         result.title = PICK_IMAGE_TITLE;
         result.showPrevious = false;
@@ -48,7 +31,7 @@ var navigationReducer = function (state, action) {
         result.showClusterColors = false;
         return result;
     }
-
+    
     switch (state.navigation.title) {
         case PICK_IMAGE_TITLE:
             switch (action.type) {
@@ -79,15 +62,16 @@ var navigationReducer = function (state, action) {
     return state.navigation;
 }
 
-var cloneChooseImage = function(state) {
+var cloneNavigationState = function(state) {
     return {
-        file: state.chooseImage.file,
-        imageLoaded: state.chooseImage.imageLoaded,
-        imageData: state.chooseImage.imageData,
-        width: state.chooseImage.width,
-        height: state.chooseImage.height
+        title: state.navigation.title,
+        showPrevious: state.navigation.showPrevious,
+        showNext: state.navigation.showNext,
+        showChooseImage: state.navigation.showChooseImage,
+        showClusterColors: state.navigation.showClusterColors
     };
-}
+};
+
 var chooseImageReducer = function(state, action) {
     switch (action.type) {
         case ACTION_INITIALIZE:
@@ -119,14 +103,15 @@ var chooseImageReducer = function(state, action) {
     return state.chooseImage;;
 };
 
-var cloneClusterColors = function(state) {
+var cloneChooseImage = function(state) {
     return {
-        colorCount: state.clusterColors.colorCount,
-        colors: state.clusterColors.colors,
-        selectedColors: state.clusterColors.selectedColors,
-        error: state.clusterColors.error
+        file: state.chooseImage.file,
+        imageLoaded: state.chooseImage.imageLoaded,
+        imageData: state.chooseImage.imageData,
+        width: state.chooseImage.width,
+        height: state.chooseImage.height
     };
-};
+}
 
 var clusterColorsReducer = function(state, action) {
     switch (action.type) {
@@ -136,6 +121,11 @@ var clusterColorsReducer = function(state, action) {
             result.colors = [];
             result.selectedColors = [];
             result.error = 0;
+            result.rect = {
+                state: "inactive",
+                start: { x: 0, y: 0 },
+                end: { x: 0, y: 0 }
+            }
             return result;
         case ACTION_CLUSTER_COLORS:
             var result = cloneClusterColors(state);
@@ -157,6 +147,41 @@ var clusterColorsReducer = function(state, action) {
                 result.selectedColors = removeColor(state.clusterColors.selectedColors, color);
             }
             return result;
+        case ACTION_BEGIN_MOUSE:
+            var result = cloneClusterColors(state);
+            result.rect.start.x = action.x;
+            result.rect.start.y = action.y;
+            result.rect.state = "started";
+            return result;
+        case ACTION_END_MOUSE:
+            var result = cloneClusterColors(state);
+            result.rect.end.x = action.x;
+            result.rect.end.y = action.y;
+            result.rect.state = "complete";
+            return result;
+        
     }
     return state.clusterColors;
 };
+
+var cloneClusterColors = function(state) {
+    return {
+        colorCount: state.clusterColors.colorCount,
+        colors: state.clusterColors.colors,
+        selectedColors: state.clusterColors.selectedColors,
+        error: state.clusterColors.error, 
+        rect: state.clusterColors.rect
+    };
+};
+
+
+var removeColor = function(colors, color) {
+    return colors.filter(function(x) {
+        return !(
+            x.red == color.red && 
+            x.green == color.green && 
+            x.blue == color.blue
+        );
+    });
+};
+

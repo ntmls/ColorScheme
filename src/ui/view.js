@@ -62,6 +62,10 @@ function View(document) {
         if (state.navigation.showChooseImage) {
             var elem = document.getElementById("file");
             elem.onchange = Actions.openFile;
+        } else if (state.navigation.showClusterColors) {
+            var canvas = document.getElementById("quantized-image");
+            canvas.addEventListener("mousedown", Actions.beginMouse, false);
+            canvas.addEventListener("mouseup", Actions.endMouse, false);
         }
     };
 
