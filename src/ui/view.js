@@ -138,6 +138,11 @@ function View(document) {
                 }
             }
             ctx.putImageData(imageData, 0, 0, 0, 0, canvas.width, canvas.height);
+            if (state.clusterColors.rect.state === "complete") {
+                ctx.strokeStyle = 'yellow';
+                var rect = Selectors.getSelectedRect(state);
+                ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+            }
         }
     }
 

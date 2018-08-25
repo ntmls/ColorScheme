@@ -17,11 +17,21 @@ var Selectors = (function() {
         return state.chooseImage.imageLoaded;
     };
     
+    var getSelectedRect = function(state) {
+        return {
+            x: state.clusterColors.rect.start.x,
+            y: state.clusterColors.rect.start.y, 
+            width: state.clusterColors.rect.end.x - state.clusterColors.rect.start.x,
+            height: state.clusterColors.rect.end.y - state.clusterColors.rect.start.y
+        };
+    };
+    
     return {
         isColorSelected: isColorSelected,
         doesColorExist: doesColorExist, 
         getFile: getFile,
-        isImageLoaded: isImageLoaded
+        isImageLoaded: isImageLoaded, 
+        getSelectedRect: getSelectedRect
     };
     
 })();
