@@ -34,7 +34,11 @@
 
     RgbColor.prototype.scale = function(scale) {
         return new RgbColor(
-            this.red * scale, 
+            this.red * scale,
             this.green * scale, 
             this.blue * scale);
+    };
+
+    RgbColor.prototype.toKey = function() {
+        return `r${this.red}g${this.green}b${this.blue}`;
     };

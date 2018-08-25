@@ -267,13 +267,34 @@ var ColorClustering = (function() {
         var pixels = Math.floor(len / 4);
         return sum / pixels;
     }
+    
+    var selectColorsInSubImage = function(bytes, colors) {
+        var hash = {};
+        var results = [];
+        var len = bytes.length;
+        var color1, color2;
+        var key;
+        var found;
+        for (var i = 0; i < len; i = i + 4) { 
+            color1 = new RgbColor(bytes[i], bytes[i+1], bytes[i+2]);
+            color2 = colors[findNearestColor(color1, colors)];
+            key = color2.toKey();
+            found = hash[key] !== undefined;
+            if (!found) {
+                hash[key] = color2;
+                results.push(color2);
+            }
+        }
+        return results;
+    }
 
     return {
         clusterColors: clusterColors, 
         findColor: findColor, 
         findNearestColor: findNearestColor,
         sortColors: sortColors, 
-        calculateError: calculateError
+        calculateError: calculateError,
+        selectColorsInSubImage: selectColorsInSubImage
     };
     
 })(); 

@@ -11,6 +11,7 @@ const ACTION_CLUSTER_COLORS = 'cluster-colors';
 const ACTION_TOGGLE_COLOR = 'toggle-color';
 const ACTION_BEGIN_MOUSE = 'begin-mouse';
 const ACTION_END_MOUSE = 'end-mouse';
+const ACTION_SELECT_COLORS_FROM_DATA = 'select-colors-from-data';
 
 var reducer = function (state, action) {
     return {
@@ -159,7 +160,10 @@ var clusterColorsReducer = function(state, action) {
             result.rect.end.y = action.y;
             result.rect.state = "complete";
             return result;
-        
+        case ACTION_SELECT_COLORS_FROM_DATA:
+            var result = cloneClusterColors(state);
+            result.selectedColors = ColorClustering.selectColorsInSubImage(action.imageData.data, state.clusterColors.colors);
+            return result;
     }
     return state.clusterColors;
 };

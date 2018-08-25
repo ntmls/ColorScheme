@@ -102,6 +102,15 @@ var Actions = (function () {
             y: evt.offsetY
         }
         model.update(action);
+        var canvas = document.getElementById('quantized-image');
+        var ctx = canvas.getContext('2d');
+        var rect = Selectors.getSelectedRect(model.getState());
+        var imageData = ctx.getImageData(rect.x, rect.y, rect.width, rect.height);
+        action = {
+            type: ACTION_SELECT_COLORS_FROM_DATA,
+            imageData: imageData
+        };
+        model.update(action);
     }
 
     return {
