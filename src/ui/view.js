@@ -1,6 +1,24 @@
 function View(document) {
 
     this.render = function (state) {
+        
+        var menuContainer = document.getElementById('menu-container');
+        menuContainer.innerHTML = renderMenu(state);
+        
+        var baseImageContainer = document.getElementById('choose-base-image-container');
+        baseImageContainer.innerHTML = renderOriginalImage(
+                Selectors.getFile(state), 
+                Selectors.isImageLoaded(state)) + 
+            renderPickImage(state);
+        drawScaledImage(state);
+        
+        var clusterColorsContainer = document.getElementById('cluster-colors-container');
+        clusterColorsContainer.innerHTML = renderClusterColors(state);
+        renderQuantized(state);
+            
+        addEventListners(state);
+        
+        /*
         var container = document.getElementById('container');
         container.innerHTML =
             renderTitle(state.navigation.title) +
@@ -13,11 +31,9 @@ function View(document) {
         addEventListners(state);
         drawScaledImage(state);
         renderQuantized(state);
+        */
     };
 
-    var renderTitle = function(title) {
-        return `<div><h1>${title}</h1></div>`;
-    }
 
     // if the image was already loaaded then we don't want to trigger the loading of it again. Otherwise we get stuck in a loop between rendering and loading.
     var renderOriginalImage = function (file, imageLoaded) {
@@ -27,19 +43,7 @@ function View(document) {
             return `<img src="${file}" id="original-image" hidden="true" onload="Actions.imageLoaded()" />`;
         }
     }
-
-    var renderNavigationButtons = function (state) {
-        return `<div id="nav-div" style="float: right;" class="w3-section">
-           ${renderNavigationButton("Previous", "Actions.previous()", state.navigation.showPrevious)}
-           ${renderNavigationButton("Next", "Actions.next()", state.navigation.showNext)}
-        </div>`;
-    };
-
-    var renderNavigationButton = function (text, action, visible) {
-        if (!visible) { return ''; }
-        return `<button class="w3-button w3-round" onclick="${action}">${text}</button>`;
-    }
-
+    
     var renderPickImage = function (state) {
         if (!state.navigation.showChooseImage) { return ''; }
         return `<div class="w3-section w3-card-4">
@@ -54,6 +58,21 @@ function View(document) {
                 </div>
             </div>`;
     };
+
+    var renderMenu = function (state) {
+        return `${renderNavigationButton("Previous", "Actions.previous()", state.navigation.showPrevious)}
+           ${renderNavigationButton("Next", "Actions.next()", state.navigation.showNext)}`;
+        /*
+            <a href="#choose-base-image" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Choose Base Image</a> 
+    <a href="#cluster-colors" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Cluster Colors</a> 
+    <a href="#super-pixels" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Super Pixels</a> 
+        */
+    };
+
+    var renderNavigationButton = function (text, action, visible) {
+        if (!visible) { return ''; }
+        return `<button class="w3-button w3-round" onclick="${action}">${text}</button>`;
+    }
 
     //var originalImageData;
 

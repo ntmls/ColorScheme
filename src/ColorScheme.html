@@ -54,11 +54,7 @@ body {font-size:16px;}
   <div class="w3-container">
     <h3 class="w3-padding-64"><b>Segmentation<br>Tools</b></h3>
   </div>
-  <div class="w3-bar-block">
-    <a href="#choose-base-image" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Choose Base Image</a> 
-    <a href="#cluster-colors" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Cluster Colors</a> 
-    <a href="#super-pixels" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Super Pixels</a> 
-  </div>
+  <div id="menu-container" class="w3-bar-block"></div>
 </nav>
 
 <!-- Top menu on small screens -->
@@ -77,23 +73,21 @@ body {font-size:16px;}
   <div class="w3-container" id="choose-base-image" style="margin-top:75px">
     <h1 class="w3-xxxlarge w3-text-red"><b>Choose Base Image</b></h1>
     <hr style="width:50px;border:5px solid red" class="w3-round">
-        <div id="container"></div>
+    <div id="choose-base-image-container"></div>
   </div>
     
   <!-- Cluster Colors -->
   <div class="w3-container" id="cluster-colors" style="margin-top:75px">
     <h1 class="w3-xxxlarge w3-text-red"><b>Cluster Colors</b></h1>
     <hr style="width:50px;border:5px solid red" class="w3-round">
-    <p>todo
-    </p>
+    <div id="cluster-colors-container"></div>
   </div>
 
    <!-- Super Pixels -->
   <div class="w3-container" id="super-pixels" style="margin-top:75px">
     <h1 class="w3-xxxlarge w3-text-red"><b>Super Pixels.</b></h1>
     <hr style="width:50px;border:5px solid red" class="w3-round">
-    <p>todo
-    </p>
+    <div id="super-pixels-container"></div>
   </div>
   
 <!-- End page content -->
@@ -110,7 +104,7 @@ function w3_close() {
     document.getElementById("mySidebar").style.display = "none";
     document.getElementById("myOverlay").style.display = "none";
 }
-
+/*
 // Modal Image Gallery
 function onClick(element) {
   document.getElementById("img01").src = element.src;
@@ -118,6 +112,7 @@ function onClick(element) {
   var captionText = document.getElementById("caption");
   captionText.innerHTML = element.alt;
 }
+*/
 </script>
 
 </body>
