@@ -1,4 +1,4 @@
-const PICK_IMAGE_TITLE = "Pick an Image";
+const PICK_IMAGE_TITLE = "Choose an Image";
 const CLUSTER_COLORS_TITLE = "Cluster Colors";
 
 const ACTION_INITIALIZE = 'initialize';
