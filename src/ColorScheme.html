@@ -16,7 +16,7 @@ body {font-size:16px;}
     overflow: hidden;
     margin: 10px;
 }
-
+    
     .fileUpload input.upload {
         position: absolute;
         top: 0;
@@ -67,31 +67,7 @@ body {font-size:16px;}
 <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 
 <!-- !PAGE CONTENT! -->
-<div class="w3-main" style="margin-left:340px;margin-right:40px">
-
-  <!-- Choose Base Image -->
-  <div class="w3-container" id="choose-base-image" style="margin-top:75px">
-    <h1 class="w3-xxxlarge w3-text-red"><b>Choose Base Image</b></h1>
-    <hr style="width:50px;border:5px solid red" class="w3-round">
-    <div id="choose-base-image-container"></div>
-  </div>
-    
-  <!-- Cluster Colors -->
-  <div class="w3-container" id="cluster-colors" style="margin-top:75px">
-    <h1 class="w3-xxxlarge w3-text-red"><b>Cluster Colors</b></h1>
-    <hr style="width:50px;border:5px solid red" class="w3-round">
-    <div id="cluster-colors-container"></div>
-  </div>
-
-   <!-- Super Pixels -->
-  <div class="w3-container" id="super-pixels" style="margin-top:75px">
-    <h1 class="w3-xxxlarge w3-text-red"><b>Super Pixels.</b></h1>
-    <hr style="width:50px;border:5px solid red" class="w3-round">
-    <div id="super-pixels-container"></div>
-  </div>
-  
-<!-- End page content -->
-</div>
+<div id="content" class="w3-main" style="margin-left:340px;margin-right:40px"></div>
 
 <script>
 // Script to open and close sidebar
@@ -104,15 +80,7 @@ function w3_close() {
     document.getElementById("mySidebar").style.display = "none";
     document.getElementById("myOverlay").style.display = "none";
 }
-/*
-// Modal Image Gallery
-function onClick(element) {
-  document.getElementById("img01").src = element.src;
-  document.getElementById("modal01").style.display = "block";
-  var captionText = document.getElementById("caption");
-  captionText.innerHTML = element.alt;
-}
-*/
+
 </script>
 
 </body>

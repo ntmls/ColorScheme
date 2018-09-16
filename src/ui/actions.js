@@ -1,12 +1,17 @@
 var Actions = (function () {
 
-    var next = function () {
-        var action = { type: ACTION_NEXT_SCREEN };
+    var clickChooseBaseImage = function () {
+        var action = { type: ACTION_CLICK_CHOOSE_BASE_IMAGE };
         model.update(action);
     }
 
-    var previous = function () {
-        var action = { type: ACTION_PREVIOUS_SCREEN };
+    var clickClusterColors = function () {
+        var action = { type: ACTION_CLICK_CLUSTER_COLORS };
+        model.update(action);
+    }
+    
+    var clickSuperPixels = function () {
+        var action = { type: ACTION_CLICK_SUPER_PIXELS };
         model.update(action);
     }
 
@@ -114,15 +119,16 @@ var Actions = (function () {
     }
 
     return {
-        next: next,
-        previous: previous,
         imageLoaded: imageLoaded,
         initializeImageData: initializeImageData,
         openFile: openFile,
         clusterColors: clusterColors, 
         toggleColor: toggleColor,
         beginMouse: beginMouse,
-        endMouse: endMouse
+        endMouse: endMouse, 
+        clickChooseBaseImage: clickChooseBaseImage,
+        clickClusterColors: clickClusterColors,
+        clickSuperPixels: clickSuperPixels
     }
 
 })();

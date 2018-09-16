@@ -5,33 +5,17 @@ function View(document) {
         var menuContainer = document.getElementById('menu-container');
         menuContainer.innerHTML = renderMenu(state);
         
-        var baseImageContainer = document.getElementById('choose-base-image-container');
-        baseImageContainer.innerHTML = renderOriginalImage(
-                Selectors.getFile(state), 
-                Selectors.isImageLoaded(state)) + 
-            renderPickImage(state);
-        drawScaledImage(state);
-        
-        var clusterColorsContainer = document.getElementById('cluster-colors-container');
-        clusterColorsContainer.innerHTML = renderClusterColors(state);
-        renderQuantized(state);
-            
-        addEventListners(state);
-        
-        /*
-        var container = document.getElementById('container');
-        container.innerHTML =
-            renderTitle(state.navigation.title) +
-            renderOriginalImage(
+        var contentContainer = document.getElementById('content');
+        contentContainer.innerHTML = renderOriginalImage(
                 Selectors.getFile(state), 
                 Selectors.isImageLoaded(state)) + 
             renderPickImage(state) + 
             renderClusterColors(state) + 
-            renderNavigationButtons(state);
-        addEventListners(state);
+            renderSuperPixels(state);
+        
         drawScaledImage(state);
         renderQuantized(state);
-        */
+        addEventListners(state);
     };
 
 
@@ -46,8 +30,12 @@ function View(document) {
     
     var renderPickImage = function (state) {
         if (!state.navigation.showChooseImage) { return ''; }
-        return `<div class="w3-section w3-card-4">
-                  <div>
+
+        return `
+            <div class="w3-container" id="choose-base-image" style="margin-top:75px">
+                <h1 class="w3-xxxlarge w3-text-red"><b>Choose Base Image</b></h1>
+                <hr style="width:50px;border:5px solid red" class="w3-round">
+                <div>
                     <div class="fileUpload w3-button">
                         <span>Change Image</span>
                         <input type="file" id="file" class="upload" name="file" />
@@ -60,13 +48,9 @@ function View(document) {
     };
 
     var renderMenu = function (state) {
-        return `${renderNavigationButton("Previous", "Actions.previous()", state.navigation.showPrevious)}
-           ${renderNavigationButton("Next", "Actions.next()", state.navigation.showNext)}`;
-        /*
-            <a href="#choose-base-image" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Choose Base Image</a> 
-    <a href="#cluster-colors" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Cluster Colors</a> 
-    <a href="#super-pixels" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Super Pixels</a> 
-        */
+        return `${renderNavigationButton(PICK_IMAGE_TITLE, "Actions.clickChooseBaseImage()", true)}
+            ${renderNavigationButton(CLUSTER_COLORS_TITLE, "Actions.clickClusterColors()", state.chooseImage.imageLoaded)}
+            ${renderNavigationButton(SUPER_PIXEL_TITLE, "Actions.clickSuperPixels()", state.chooseImage.imageLoaded)}`;
     };
 
     var renderNavigationButton = function (text, action, visible) {
@@ -75,7 +59,6 @@ function View(document) {
     }
 
     //var originalImageData;
-
 
     var addEventListners = function (state) {
         if (state.navigation.showChooseImage) {
@@ -103,7 +86,10 @@ function View(document) {
 
     var renderClusterColors = function (state) {
         if (!state.navigation.showClusterColors) { return ''; }
-        return `<div class="w3-section w3-card-4">
+        return `
+            <div class="w3-container" id="cluster-colors" style="margin-top:75px">
+                <h1 class="w3-xxxlarge w3-text-red"><b>Cluster Colors</b></h1>
+                <hr style="width:50px;border:5px solid red" class="w3-round">
                 <div>
                     <input type="number" name="cluster-count" id="cluster-count" min="2" max="256" value="${state.clusterColors.colorCount}" />
                     <input type="button" id="go" name="go" value="Refresh" onClick="Actions.clusterColors()" />
@@ -112,8 +98,9 @@ function View(document) {
                 ${renderColors(state)}
                 </div>
                 <div>Error: ${state.clusterColors.error}</div>
-                <div>
-                    <canvas id="quantized-image"  width="${state.chooseImage.width}" height="${state.chooseImage.height}"></canvas>
+                    <div>
+                        <canvas id="quantized-image"  width="${state.chooseImage.width}" height="${state.chooseImage.height}"></canvas>
+                    </div>
                 </div>
             </div>`;
     };
@@ -163,6 +150,16 @@ function View(document) {
                 ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
             }
         }
+    }
+    
+    var renderSuperPixels = function(state) {
+        if (!state.navigation.showSuperPixels) { return ''; }
+        return `
+          <div class="w3-container" id="super-pixels" style="margin-top:75px">
+            <h1 class="w3-xxxlarge w3-text-red"><b>Super Pixels.</b></h1>
+            <hr style="width:50px;border:5px solid red" class="w3-round">
+            <div id="super-pixels-container"></div>
+          </div>`;
     }
 
 }
