@@ -18,7 +18,6 @@ function View(document) {
         addEventListners(state);
     };
 
-
     // if the image was already loaaded then we don't want to trigger the loading of it again. Otherwise we get stuck in a loop between rendering and loading.
     var renderOriginalImage = function (file, imageLoaded) {
         if (imageLoaded) {
