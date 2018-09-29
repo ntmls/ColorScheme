@@ -16,7 +16,7 @@ QUnit.module("Reducer Tests", function () {
         model.initialize();
 
         // test
-        var expected = '{\"navigation\":{\"title\":\"Pick an Image\",\"showPrevious\":false,\"showNext\":true,\"showChooseImage\":true,\"showClusterColors\":false},\"domain\":{\"file\":\"\",\"imageLoaded\":false,\"imageData\":null,\"width\":320,\"height\":240,\"colorCount\":16,\"colors\":[],\"selectedColors\":[]}}'
+        var expected = '{\"logicalClock\":0,\"navigation\":{\"title\":\"Choose an Image\",\"showChooseImage\":true,\"showClusterColors\":false,\"showSuperPixels\":false},\"chooseImage\":{\"file\":\"\",\"imageLoaded\":false,\"imageData\":null,\"width\":320,\"height\":240},\"clusterColors\":{\"colorCount\":16,\"colors\":[],\"selectedColors\":[],\"error\":0,\"rect\":{\"state\":\"inactive\",\"start\":{\"x\":0,\"y\":0},\"end\":{\"x\":0,\"y\":0}}}}'
         assert.equal(view.actual, expected);
     });
 
