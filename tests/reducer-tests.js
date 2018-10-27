@@ -12,7 +12,7 @@ QUnit.module("Reducer Tests", function () {
                 this.actual = JSON.stringify(state);
             }
         }
-        var model = new Model(view, reducer);
+        var model = new Store(view, reducer);
         model.initialize();
 
         // test
