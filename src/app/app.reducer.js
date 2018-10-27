@@ -19,57 +19,11 @@ const ACTION_CLICK_SUPER_PIXELS = 'click-super-pixels';
 var reducer = function (state, action) {
     return {
         logicalClock: state.logicalClock === undefined ? 0 : state.logicalClock += 1,
-        navigation: navigationReducer(state, action),
+        navigation: menuReducer(state, action),
         chooseImage: chooseImageReducer(state, action),
         clusterColors: clusterColorsReducer(state, action)
     };
 };
-
-var navigationReducer = function (state, action) {
-
-    switch (action.type) {
-        case ACTION_INITIALIZE:
-            var result = {};
-            result.title = PICK_IMAGE_TITLE;
-            result.showChooseImage = true;
-            result.showClusterColors = false;
-            result.showSuperPixels = false
-            return result;
-
-        case ACTION_CLICK_CLUSTER_COLORS:
-            var result = {};
-            result.title = CLUSTER_COLORS_TITLE;
-            result.showChooseImage = false;
-            result.showClusterColors = true;
-            result.showSuperPixels = false
-            return result;
-
-        case ACTION_CLICK_CHOOSE_BASE_IMAGE:
-            var result = {};
-            result.title = PICK_IMAGE_TITLE;
-            result.showChooseImage = true;
-            result.showClusterColors = false;
-            result.showSuperPixels = false
-            return result;
-
-        case ACTION_CLICK_CHOOSE_BASE_IMAGE:
-            var result = {};
-            result.title = PICK_IMAGE_TITLE;
-            result.showChooseImage = true;
-            result.showClusterColors = false;
-            result.showSuperPixels = false
-            return result;
-            
-        case ACTION_CLICK_SUPER_PIXELS:
-            var result = {};
-            result.title = SUPER_PIXEL_TITLE;
-            result.showChooseImage = false;
-            result.showClusterColors = false;
-            result.showSuperPixels = true;
-            return result;
-    }
-    return state.navigation;
-}
 
 var chooseImageReducer = function(state, action) {
     switch (action.type) {

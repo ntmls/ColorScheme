@@ -46,19 +46,6 @@ function View(document) {
             </div>`;
     };
 
-    var renderMenu = function (state) {
-        return `${renderNavigationButton(PICK_IMAGE_TITLE, "Actions.clickChooseBaseImage()", true)}
-            ${renderNavigationButton(CLUSTER_COLORS_TITLE, "Actions.clickClusterColors()", state.chooseImage.imageLoaded)}
-            ${renderNavigationButton(SUPER_PIXEL_TITLE, "Actions.clickSuperPixels()", state.chooseImage.imageLoaded)}`;
-    };
-
-    var renderNavigationButton = function (text, action, visible) {
-        if (!visible) { return ''; }
-        return `<button class="w3-button w3-round" onclick="${action}">${text}</button>`;
-    }
-
-    //var originalImageData;
-
     var addEventListners = function (state) {
         if (state.navigation.showChooseImage) {
             var elem = document.getElementById("file");
