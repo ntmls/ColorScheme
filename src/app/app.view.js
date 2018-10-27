@@ -157,6 +157,7 @@ function View(document) {
           <div class="w3-container" id="super-pixels" style="margin-top:75px">
             <h1 class="w3-xxxlarge w3-text-red"><b>Super Pixels.</b></h1>
             <hr style="width:50px;border:5px solid red" class="w3-round">
+            <button>Execute</button>
             <div id="super-pixels-container"></div>
           </div>`;
     }

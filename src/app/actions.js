@@ -2,17 +2,17 @@ var Actions = (function () {
 
     var clickChooseBaseImage = function () {
         var action = { type: ACTION_CLICK_CHOOSE_BASE_IMAGE };
-        model.update(action);
+        store.update(action);
     }
 
     var clickClusterColors = function () {
         var action = { type: ACTION_CLICK_CLUSTER_COLORS };
-        model.update(action);
+        store.update(action);
     }
     
     var clickSuperPixels = function () {
         var action = { type: ACTION_CLICK_SUPER_PIXELS };
-        model.update(action);
+        store.update(action);
     }
 
     var imageLoaded = function () {
@@ -23,7 +23,7 @@ var Actions = (function () {
             width: Math.floor(pic.width * scale),
             height: Math.floor(pic.height * scale)
         }
-        model.update(action);
+        store.update(action);
 
         // follow up action because the scaled image needs to be rendered before grabbing the bytes from it.
         initializeImageData(); 
@@ -37,7 +37,7 @@ var Actions = (function () {
             type: ACTION_INITIALIZE_IMAGE_DATA,
             imageData: imageData
         };
-        model.update(action);
+        store.update(action);
     };
 
     var getScale = function(sWidth, sHeight, tWidth, tHeight) {
@@ -64,12 +64,12 @@ var Actions = (function () {
             type: ACTION_CHANGE_IMAGE,
             file: e.target.result
         }
-        model.update(action);
+        store.update(action);
     }
 
     var clusterColors = function() {
         var count = document.getElementById('cluster-count').value;
-        var state = model.getState();
+        var state = store.getState();
         clusters = ColorClustering.clusterColors(state.chooseImage.imageData.data, count);
         var colors = clusters.map(function (x) { return x.color; });
         colors = ColorClustering.sortColors(colors); 
@@ -78,7 +78,7 @@ var Actions = (function () {
             colorCount: count,
             colors: colors
         }
-        model.update(action);
+        store.update(action);
     };
     
     var toggleColor = function(red,green,blue) {
@@ -88,7 +88,7 @@ var Actions = (function () {
             green: green, 
             blue: blue
         }
-        model.update(action);
+        store.update(action);
     }
     
     var beginMouse = function(evt) {
@@ -97,7 +97,7 @@ var Actions = (function () {
             x: evt.offsetX,
             y: evt.offsetY
         }
-        model.update(action);
+        store.update(action);
     }
     
     var endMouse = function(evt) {
@@ -106,16 +106,16 @@ var Actions = (function () {
             x: evt.offsetX,
             y: evt.offsetY
         }
-        model.update(action);
+        store.update(action);
         var canvas = document.getElementById('quantized-image');
         var ctx = canvas.getContext('2d');
-        var rect = Selectors.getSelectedRect(model.getState());
+        var rect = Selectors.getSelectedRect(store.getState());
         var imageData = ctx.getImageData(rect.x, rect.y, rect.width, rect.height);
         action = {
             type: ACTION_SELECT_COLORS_FROM_DATA,
             imageData: imageData
         };
-        model.update(action);
+        store.update(action);
     }
 
     return {

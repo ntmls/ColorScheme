@@ -1,4 +1,4 @@
-function Model(renderable, reducer) {
+function Store(renderable, reducer) {
     var state = {};
     var updating = false;
     this.update = function (action) {

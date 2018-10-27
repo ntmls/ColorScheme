@@ -30,11 +30,11 @@
             }
         </style>
         <script>
-            var model, view;
+            var store, view;
             function setup() {
                 view = new View(document);
-                model = new Model(view, reducer);
-                model.initialize();
+                store = new Store(view, reducer);
+                store.initialize();
             }
         </script>
         <script src="libs/RgbColor.js"></script>
@@ -43,7 +43,7 @@
         <script src="app/reducer.js"></script>
         <script src="app/selectors.js"></script>
         <script src="app/app.view.js"></script>
-        <script src="app/Model.js"></script>
+        <script src="app/store.js"></script>
         <script src="app/Actions.js"></script>
     </head>
     
